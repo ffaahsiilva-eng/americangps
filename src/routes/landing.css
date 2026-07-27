@@ -80,7 +80,7 @@ a.button--primary, .button--primary {
 }
 .hero--plain { background: #ffffff; }
 .hero--plain::after {
-  content: ""; position: absolute; inset: auto 0 0 0; height: 220px;
+  content: ""; position: absolute; inset: auto 0 0 0; height: 420px;
   background: linear-gradient(180deg, #ffffff 0%, #000000 100%);
   z-index: 0; pointer-events: none;
 }
@@ -506,6 +506,7 @@ a.button--primary, .button--primary {
   .hero__line::before {
     clip-path: polygon(0 68%, 52% 68%, 64% 0, 100% 0, 100% 25%, 68% 25%, 56% 98%, 0 98%);
   }
+  .hero--plain::after { height: 300px; }
   .about-block { padding: 56px 16px; }
   .about-block__inner { display: flex; flex-direction: column-reverse; }
   .about-block__title { font-size: clamp(2.85rem, 14vw, 4.2rem); }
