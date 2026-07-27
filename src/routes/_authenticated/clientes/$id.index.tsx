@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
+import { getCompanySettings } from "@/lib/company.functions";
 import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
@@ -239,6 +240,7 @@ function ClientDetail() {
 
       {modalOpen && (
         <SaleModal
+          clientName={client.data?.name || ""}
           onClose={() => setModalOpen(false)}
           onSubmit={(data) => createMut.mutate(data)}
           loading={createMut.isPending}
@@ -257,7 +259,16 @@ type ItemDraft = {
   unit: string;
 };
 
-function newItem(): ItemDraft {
+type AddedItem = {
+  key: string;
+  category: ServiceCategory;
+  service: string;
+  qty: number;
+  unit: number;
+  total: number;
+};
+
+function emptyDraft(): ItemDraft {
   return {
     key: Math.random().toString(36).slice(2),
     category: "instalacao",
@@ -268,11 +279,13 @@ function newItem(): ItemDraft {
 }
 
 function SaleModal({
+  clientName,
   onClose,
   onSubmit,
   loading,
   error,
 }: {
+  clientName: string;
   onClose: () => void;
   onSubmit: (data: Array<{
     kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
@@ -284,193 +297,269 @@ function SaleModal({
   loading: boolean;
   error?: string;
 }) {
-  const [items, setItems] = useState<ItemDraft[]>([newItem()]);
+  const [draft, setDraft] = useState<ItemDraft>(emptyDraft());
+  const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
   const [paid, setPaid] = useState(false);
 
-  function updateItem(key: string, patch: Partial<ItemDraft>) {
-    setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
-  }
-  function removeItem(key: string) {
-    setItems((prev) => (prev.length === 1 ? prev : prev.filter((it) => it.key !== key)));
+  const getCompanyFn = useServerFn(getCompanySettings);
+  const company = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: () => getCompanyFn({}),
+  });
+
+  const groups = SERVICE_CATALOG[draft.category];
+  const draftQty = parseFloat(draft.qty.replace(",", ".")) || 0;
+  const draftUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
+  const draftTotal = draftQty * draftUnit;
+  const canAdd = draft.service && draftTotal > 0;
+
+  const total = items.reduce((s, it) => s + it.total, 0);
+
+  function addItem() {
+    if (!canAdd) return;
+    setItems((prev) => [
+      ...prev,
+      {
+        key: Math.random().toString(36).slice(2),
+        category: draft.category,
+        service: draft.service,
+        qty: draftQty,
+        unit: draftUnit,
+        total: draftTotal,
+      },
+    ]);
+    setDraft(emptyDraft());
   }
 
-  const itemTotals = items.map((it) => {
-    const q = parseFloat(it.qty.replace(",", ".")) || 0;
-    const u = parseFloat(it.unit.replace(",", ".")) || 0;
-    return q * u;
-  });
-  const grandTotal = itemTotals.reduce((s, n) => s + n, 0);
+  function removeItem(key: string) {
+    setItems((prev) => prev.filter((it) => it.key !== key));
+  }
+
+  function finalize() {
+    if (items.length === 0) return;
+    const payload = items.map((it) => ({
+      kind: it.category,
+      description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
+      amount: it.total,
+      occurred_at: occurredAt,
+      paid,
+    }));
+    onSubmit(payload);
+  }
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const now = new Date();
+  const nowStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 720 }}>
-        <h2>Adicionar serviços</h2>
-        {error && <div className="auth-error">{error}</div>}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const payload: Array<{
-              kind: ServiceCategory;
-              description: string;
-              amount: number;
-              occurred_at: string;
-              paid: boolean;
-            }> = [];
-            for (let i = 0; i < items.length; i++) {
-              const it = items[i];
-              const total = itemTotals[i];
-              if (!it.service || total <= 0) continue;
-              const q = parseFloat(it.qty.replace(",", ".")) || 1;
-              const description = q > 1 ? `${it.service} (x${q})` : it.service;
-              payload.push({
-                kind: it.category,
-                description,
-                amount: total,
-                occurred_at: occurredAt,
-                paid,
-              });
-            }
-            if (payload.length === 0) return;
-            onSubmit(payload);
-          }}
-        >
-          <div className="grid-cols-2">
-            <div className="field">
-              <label>Data *</label>
-              <input
-                type="date"
-                value={occurredAt}
-                onChange={(e) => setOccurredAt(e.target.value)}
-                required
-              />
+    <div className="pos-overlay">
+      <div className="pos-shell">
+        {/* LEFT: entry + list */}
+        <div className="pos-main">
+          <div className="pos-header">
+            <div>
+              <div className="pos-eyebrow">Frente de caixa</div>
+              <h2 className="pos-title">Adicionar serviços</h2>
+              <div className="pos-sub">{clientName}</div>
             </div>
-            <div className="field">
-              <label>Status</label>
-              <select value={paid ? "1" : "0"} onChange={(e) => setPaid(e.target.value === "1")}>
-                <option value="0">Em aberto</option>
-                <option value="1">Pago</option>
-              </select>
-            </div>
+            <button className="button--ghost button--sm" onClick={onClose}>
+              Fechar (ESC)
+            </button>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
-            {items.map((it, idx) => {
-              const groups = SERVICE_CATALOG[it.category];
-              const total = itemTotals[idx];
-              return (
-                <div
-                  key={it.key}
-                  style={{
-                    border: "1px solid rgba(255,255,255,.12)",
-                    borderRadius: 8,
-                    padding: 14,
-                  }}
+          {error && <div className="auth-error">{error}</div>}
+
+          <div className="pos-entry">
+            <div className="pos-entry__grid">
+              <div className="field">
+                <label>Categoria</label>
+                <select
+                  value={draft.category}
+                  onChange={(e) =>
+                    setDraft({ ...draft, category: e.target.value as ServiceCategory, service: "" })
+                  }
                 >
-                  <div className="row row--between" style={{ marginBottom: 8 }}>
-                    <strong style={{ fontSize: ".85rem", letterSpacing: ".08em", textTransform: "uppercase" }}>
-                      Item {idx + 1}
-                    </strong>
-                    {items.length > 1 && (
-                      <button
-                        type="button"
-                        className="button--ghost button--sm button--danger"
-                        onClick={() => removeItem(it.key)}
-                      >
-                        Remover
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid-cols-2">
-                    <div className="field">
-                      <label>Categoria *</label>
-                      <select
-                        value={it.category}
-                        onChange={(e) =>
-                          updateItem(it.key, {
-                            category: e.target.value as ServiceCategory,
-                            service: "",
-                          })
-                        }
-                      >
-                        <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
-                        <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
-                        <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
-                      </select>
-                    </div>
-                    <div className="field">
-                      <label>Serviço *</label>
-                      <select
-                        value={it.service}
-                        onChange={(e) => updateItem(it.key, { service: e.target.value })}
-                        required
-                      >
-                        <option value="">Selecione...</option>
-                        {groups.map((g) => (
-                          <optgroup key={g.group} label={g.group}>
-                            {g.items.map((op) => (
-                              <option key={op} value={op}>
-                                {op}
-                              </option>
-                            ))}
-                          </optgroup>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid-cols-2">
-                    <div className="field">
-                      <label>Quantidade</label>
-                      <input
-                        inputMode="decimal"
-                        value={it.qty}
-                        onChange={(e) => updateItem(it.key, { qty: e.target.value })}
-                        placeholder="1"
-                      />
-                    </div>
-                    <div className="field">
-                      <label>Valor unitário (R$) *</label>
-                      <input
-                        inputMode="decimal"
-                        value={it.unit}
-                        onChange={(e) => updateItem(it.key, { unit: e.target.value })}
-                        required
-                        placeholder="0,00"
-                      />
-                    </div>
-                  </div>
-                  <div className="field" style={{ marginBottom: 0 }}>
-                    <label>Subtotal</label>
-                    <input value={fmtBRL(total)} readOnly />
-                  </div>
-                </div>
-              );
-            })}
+                  <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
+                  <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
+                  <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
+                </select>
+              </div>
+              <div className="field pos-entry__service">
+                <label>Serviço</label>
+                <select
+                  value={draft.service}
+                  onChange={(e) => setDraft({ ...draft, service: e.target.value })}
+                >
+                  <option value="">Selecione um serviço…</option>
+                  {groups.map((g) => (
+                    <optgroup key={g.group} label={g.group}>
+                      {g.items.map((op) => (
+                        <option key={op} value={op}>
+                          {op}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label>Qtd</label>
+                <input
+                  inputMode="decimal"
+                  value={draft.qty}
+                  onChange={(e) => setDraft({ ...draft, qty: e.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label>Valor unit. (R$)</label>
+                <input
+                  inputMode="decimal"
+                  value={draft.unit}
+                  onChange={(e) => setDraft({ ...draft, unit: e.target.value })}
+                  placeholder="0,00"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addItem();
+                    }
+                  }}
+                />
+              </div>
+              <div className="field pos-entry__subtotal">
+                <label>Subtotal</label>
+                <div className="pos-entry__subtotal-value">{fmtBRL(draftTotal)}</div>
+              </div>
+              <button
+                type="button"
+                className="button button--primary pos-entry__add"
+                onClick={addItem}
+                disabled={!canAdd}
+              >
+                + Adicionar item
+              </button>
+            </div>
           </div>
 
-          <div className="row row--between" style={{ marginTop: 14 }}>
+          <div className="pos-list">
+            <div className="pos-list__head">
+              <span>#</span>
+              <span>Descrição do item</span>
+              <span className="num">Qtd</span>
+              <span className="num">Unit.</span>
+              <span className="num">Subtotal</span>
+              <span></span>
+            </div>
+            <div className="pos-list__body">
+              {items.length === 0 ? (
+                <div className="pos-list__empty">
+                  Nenhum item adicionado. Selecione um serviço acima e clique em <strong>Adicionar item</strong>.
+                </div>
+              ) : (
+                items.map((it, idx) => (
+                  <div className="pos-list__row" key={it.key}>
+                    <span className="pos-list__num">{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="pos-list__desc">
+                      <strong>{it.service}</strong>
+                      <em>{CATEGORY_LABEL[it.category]}</em>
+                    </span>
+                    <span className="num">{it.qty}</span>
+                    <span className="num">{fmtBRL(it.unit)}</span>
+                    <span className="num pos-list__sub">{fmtBRL(it.total)}</span>
+                    <button
+                      type="button"
+                      className="pos-list__remove"
+                      onClick={() => removeItem(it.key)}
+                      aria-label="Remover"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="pos-footer">
+            <div className="pos-footer__meta">
+              <div className="field" style={{ marginBottom: 0 }}>
+                <label>Data</label>
+                <input type="date" value={occurredAt} onChange={(e) => setOccurredAt(e.target.value)} />
+              </div>
+              <div className="field" style={{ marginBottom: 0 }}>
+                <label>Status</label>
+                <select value={paid ? "1" : "0"} onChange={(e) => setPaid(e.target.value === "1")}>
+                  <option value="0">Em aberto</option>
+                  <option value="1">Pago</option>
+                </select>
+              </div>
+            </div>
             <button
               type="button"
-              className="button--ghost"
-              onClick={() => setItems((prev) => [...prev, newItem()])}
+              className="button button--primary pos-finalize"
+              onClick={finalize}
+              disabled={loading || items.length === 0}
             >
-              + Adicionar serviço
+              {loading ? "Salvando…" : `Finalizar · ${fmtBRL(total)}`}
             </button>
-            <div style={{ fontSize: "1.05rem" }}>
-              Total: <strong>{fmtBRL(grandTotal)}</strong>
-            </div>
           </div>
+        </div>
 
-          <div className="row row--between" style={{ marginTop: 18 }}>
-            <button type="button" className="button--ghost" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="submit" className="button button--primary" disabled={loading}>
-              {loading ? "Salvando..." : `Salvar ${items.length > 1 ? items.length + " itens" : "item"}`}
-            </button>
+        {/* RIGHT: receipt preview */}
+        <aside className="pos-aside">
+          <div className="pos-aside__head">Pré-visualização do cupom</div>
+          <div className="receipt">
+            <div className="receipt__title">*** {(company.data?.name || "SUA EMPRESA").toUpperCase()} ***</div>
+            {company.data?.address && <div className="receipt__center">{company.data.address}</div>}
+            {(company.data?.phone || company.data?.email) && (
+              <div className="receipt__center">
+                {[company.data?.phone, company.data?.email].filter(Boolean).join(" · ")}
+              </div>
+            )}
+            <div className="receipt__center">{nowStr}</div>
+            <div className="receipt__center">CLIENTE: {clientName || "—"}</div>
+            <div className="receipt__sep" />
+            <div className="receipt__center">CUPOM PRÉVIA</div>
+            <div className="receipt__sep" />
+            {items.length === 0 ? (
+              <div className="receipt__empty">Adicione itens para visualizar…</div>
+            ) : (
+              items.map((it, idx) => (
+                <div className="receipt__item" key={it.key}>
+                  <div className="receipt__item-name">
+                    {String(idx + 1).padStart(2, "0")} {it.service.toUpperCase()}
+                  </div>
+                  <div className="receipt__item-row">
+                    <span>
+                      {it.qty} UN X {fmtBRL(it.unit)}
+                    </span>
+                    <span>{fmtBRL(it.total)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            <div className="receipt__sep" />
+            <div className="receipt__row">
+              <span>SUBTOTAL</span>
+              <span>{fmtBRL(total)}</span>
+            </div>
+            <div className="receipt__row receipt__row--total">
+              <span>TOTAL</span>
+              <span>{fmtBRL(total)}</span>
+            </div>
+            <div className="receipt__sep" />
+            <div className="receipt__center receipt__foot">Obrigado pela preferência!</div>
           </div>
-        </form>
+        </aside>
       </div>
     </div>
   );
 }
+
