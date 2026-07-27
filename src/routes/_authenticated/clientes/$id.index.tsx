@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { AppShell, fmtBRL, fmtDate } from "../-shell";
+import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
 

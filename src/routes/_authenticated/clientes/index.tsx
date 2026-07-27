@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { AppShell } from "./-shell";
+import { AppShell } from "@/lib/app-shell";
 import { listClients, createClient } from "@/lib/clients.functions";
 
 export const Route = createFileRoute("/_authenticated/clientes/")({

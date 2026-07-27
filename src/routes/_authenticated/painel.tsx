@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { AppShell, fmtBRL, fmtDate } from "./-shell";
+import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getCashSummary } from "@/lib/cash.functions";
 import { listSales } from "@/lib/sales.functions";
 
