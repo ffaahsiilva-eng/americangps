@@ -64,9 +64,9 @@ function ClientDetail() {
 
   const { from, to } = useMemo(() => monthRange(month), [month]);
 
-  const sales = useQuery({
-    queryKey: ["sales", id, from, to],
-    queryFn: () => listSalesFn({ data: { clientId: id, from, to } }),
+  const notes = useQuery({
+    queryKey: ["sale-notes", id, from, to],
+    queryFn: () => listNotesFn({ data: { clientId: id, from, to } }),
   });
 
   type FinalizedContext = {
@@ -84,23 +84,23 @@ function ClientDetail() {
       dateStr: string;
     }) => {
       const paid = ctx.method !== null;
-      for (const it of ctx.items) {
-        await createSaleFn({
-          data: {
-            client_id: id,
+      await createNoteFn({
+        data: {
+          client_id: id,
+          occurred_at: ctx.dateStr,
+          payment_method: ctx.method,
+          paid,
+          items: ctx.items.map((it) => ({
             kind: it.category,
             description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
             amount: it.total,
-            occurred_at: ctx.dateStr,
-            paid,
-            payment_method: ctx.method,
-          },
-        });
-      }
+          })),
+        },
+      });
       return ctx;
     },
     onSuccess: (ctx) => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
+      qc.invalidateQueries({ queryKey: ["sale-notes"] });
       qc.invalidateQueries({ queryKey: ["cash-summary"] });
       qc.invalidateQueries({ queryKey: ["recent-sales"] });
       setModalOpen(false);
@@ -109,35 +109,18 @@ function ClientDetail() {
     },
   });
 
-
-  const toggleMut = useMutation({
-    mutationFn: ({ saleId, paid }: { saleId: string; paid: boolean }) =>
-      togglePaidFn({ data: { id: saleId, paid } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
-      qc.invalidateQueries({ queryKey: ["cash-summary"] });
-    },
-  });
-
-  const deleteSaleMut = useMutation({
-    mutationFn: (saleId: string) => deleteSaleFn({ data: { id: saleId } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
-      qc.invalidateQueries({ queryKey: ["cash-summary"] });
-    },
-  });
-
   const totals = useMemo(() => {
-    const items = sales.data ?? [];
+    const list = notes.data ?? [];
     let total = 0;
     let pago = 0;
-    for (const s of items) {
-      const a = Number(s.amount);
+    for (const n of list) {
+      const a = Number(n.total);
       total += a;
-      if (s.paid) pago += a;
+      if (n.paid) pago += a;
     }
     return { total, pago, aberto: total - pago };
-  }, [sales.data]);
+  }, [notes.data]);
+
 
   return (
     <AppShell>
