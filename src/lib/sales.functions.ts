@@ -75,10 +75,11 @@ export const createSaleNote = createServerFn({ method: "POST" })
     const { data: res, error } = await context.supabase.rpc("create_sale_note", {
       _client_id: data.client_id,
       _occurred_at: data.occurred_at,
-      _payment_method: data.payment_method,
+      _payment_method: (data.payment_method ?? null) as unknown as string,
       _paid: data.paid,
       _items: data.items,
     });
+
     if (error) throw new Error(error.message);
     return res as { note_id: string; note_number: number; total: number };
   });
