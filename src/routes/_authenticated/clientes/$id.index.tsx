@@ -579,19 +579,62 @@ function SaleModal({
                   />
                 </div>
                 <div className="field">
-                  <label>Valor unit. (R$)</label>
-                  <input
-                    inputMode="decimal"
-                    value={draft.unit}
-                    onChange={(e) => setDraft({ ...draft, unit: e.target.value })}
-                    placeholder="0,00"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addItem();
-                      }
-                    }}
-                  />
+                  {(() => {
+                    const histPrice = lastPriceByName.get(draft.service);
+                    const stockPrice = priceByName.get(draft.service);
+                    const currentUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
+                    const fromHistory = histPrice != null && Math.abs(currentUnit - histPrice) < 0.005;
+                    return (
+                      <>
+                        <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                          <span>
+                            Valor unit. (R$)
+                            {fromHistory && (
+                              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.7 }}>· histórico</span>
+                            )}
+                          </span>
+                          {draft.service && (histPrice != null || stockPrice != null) && (
+                            <span style={{ display: "flex", gap: 6 }}>
+                              {stockPrice != null && (
+                                <button
+                                  type="button"
+                                  className="button--ghost button--sm"
+                                  style={{ fontSize: 11, padding: "2px 8px" }}
+                                  onClick={() =>
+                                    setDraft({ ...draft, unit: stockPrice.toFixed(2).replace(".", ",") })
+                                  }
+                                  title="Usar preço padrão do estoque"
+                                >
+                                  Padrão
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="button--ghost button--sm"
+                                style={{ fontSize: 11, padding: "2px 8px" }}
+                                onClick={() => setDraft({ ...draft, unit: "" })}
+                                title="Digitar valor manualmente"
+                              >
+                                Limpar
+                              </button>
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          inputMode="decimal"
+                          value={draft.unit}
+                          onChange={(e) => setDraft({ ...draft, unit: e.target.value })}
+                          placeholder="0,00"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addItem();
+                            }
+                          }}
+                        />
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="field pos-entry__subtotal">
                   <label>Subtotal</label>
