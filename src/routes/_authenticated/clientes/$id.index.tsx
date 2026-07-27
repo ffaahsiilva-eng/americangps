@@ -15,6 +15,19 @@ import {
   type ReceiptItem,
 } from "@/lib/receipt-print";
 
+function noteSummary(sales: { kind: string; description: string; amount: number }[]) {
+  const count = sales.length;
+  if (count === 0) return "Nenhum item";
+  const byKind = sales.reduce<Record<string, number>>((acc, it) => {
+    acc[it.kind] = (acc[it.kind] || 0) + 1;
+    return acc;
+  }, {});
+  const parts = Object.entries(byKind).map(
+    ([kind, c]) => `${c} ${CATEGORY_LABEL[kind as ServiceCategory]?.toLowerCase() ?? kind}`
+  );
+  return `${count} ${count === 1 ? "item" : "itens"} (${parts.join(", ")})`;
+}
+
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
