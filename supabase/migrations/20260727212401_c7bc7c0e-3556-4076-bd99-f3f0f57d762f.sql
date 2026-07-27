@@ -1,0 +1,2 @@
+ALTER TABLE public.sales DROP CONSTRAINT IF EXISTS sales_kind_check;
+ALTER TABLE public.sales ADD CONSTRAINT sales_kind_check CHECK (kind = ANY (ARRAY['produto','servico','instalacao','desinstalacao','manutencao']));
