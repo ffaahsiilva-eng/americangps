@@ -15,6 +15,8 @@ import {
   downloadBlob,
   type ReportClient,
 } from "@/lib/monthly-report";
+import { DashboardCharts } from "@/components/dashboard-charts";
+
 
 
 export const Route = createFileRoute("/_authenticated/painel")({
