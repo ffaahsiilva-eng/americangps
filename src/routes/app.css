@@ -16,7 +16,7 @@
   color: rgba(255,255,255,.72);
 }
 .app-nav__logo {
-  height: 38px; width: auto; display: block;
+  height: 52px; width: auto; display: block;
 }
 .app-nav__links { display: flex; gap: 22px; align-items: center; }
 .app-nav__links a {
