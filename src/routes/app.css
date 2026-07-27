@@ -201,10 +201,12 @@
   max-width: 800px; margin: 0 auto;
 }
 .invoice__header {
-  display: flex; justify-content: space-between; align-items: flex-start;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
   border-bottom: 2px solid #111; padding-bottom: 20px; margin-bottom: 30px;
 }
-.invoice__brand { text-transform: uppercase; letter-spacing: .2em; font-size: .9rem; }
+.invoice__brandBlock { display: flex; gap: 16px; align-items: center; }
+.invoice__logo { width: 84px; height: 84px; object-fit: contain; }
+.invoice__brand { text-transform: uppercase; letter-spacing: .18em; font-size: 1rem; font-weight: 600; }
 .invoice__title {
   font-size: 2.2rem; font-weight: 300; letter-spacing: -.03em;
   text-transform: uppercase; margin: 0;
