@@ -1,29 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import "./landing.css";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Future Editorial Hero" },
+      { title: "Sistema de Gestão — Clientes, Serviços e Caixa" },
       {
         name: "description",
         content:
-          "Treinamento para aprender a usar IA na gestão de redes sociais com método prático, estrutura clara e aplicação real.",
+          "Painel de controle para gerenciar clientes, lançar produtos e serviços, acompanhar o caixa e gerar fechamento mensal.",
       },
-      { property: "og:title", content: "Future Editorial Hero" },
+      { property: "og:title", content: "Sistema de Gestão — Clientes, Serviços e Caixa" },
       {
         property: "og:description",
         content:
-          "Treinamento para aprender a usar IA na gestão de redes sociais com método prático, estrutura clara e aplicação real.",
+          "Painel de controle para gerenciar clientes, lançar produtos e serviços, acompanhar o caixa e gerar fechamento mensal.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Future Editorial Hero" },
+      { name: "twitter:title", content: "Sistema de Gestão" },
       {
         name: "twitter:description",
         content:
-          "Treinamento para aprender a usar IA na gestão de redes sociais com método prático, estrutura clara e aplicação real.",
+          "Painel de controle para gerenciar clientes, lançar produtos e serviços, acompanhar o caixa e gerar fechamento mensal.",
       },
     ],
   }),
@@ -41,24 +41,24 @@ const IMG_DELIVERABLE =
 
 const FAQ_ITEMS = [
   {
-    q: "Esse treinamento é para iniciantes?",
-    a: "Sim. A proposta é ensinar como usar IA na gestão das redes sociais mesmo para quem ainda não tem um processo estruturado.",
+    q: "Como funciona o acesso ao Painel?",
+    a: "Cada usuário cria uma conta com e-mail e senha. O acesso é individual e cada operador só enxerga os próprios clientes e lançamentos.",
   },
   {
-    q: "Eu preciso entender de tecnologia para aplicar?",
-    a: "Não. O treinamento pode ser apresentado de forma prática, com foco no uso direto das ferramentas no contexto das redes sociais.",
+    q: "Preciso instalar algo no computador?",
+    a: "Não. O Painel de Controle roda direto pelo navegador, no computador ou no celular, sem instalação.",
   },
   {
-    q: "Esse conteúdo serve para negócios e perfis pessoais?",
-    a: "Sim. A lógica de planejamento, criação e otimização com IA pode ser adaptada para diferentes nichos, marcas e posicionamentos.",
+    q: "Meus dados ficam seguros?",
+    a: "Sim. Todas as informações ficam armazenadas no banco de dados com controle de acesso individual por usuário.",
   },
   {
-    q: "Eu vou receber materiais prontos para usar?",
-    a: "A estrutura já prevê espaço para incluir prompts, modelos, exemplos e recursos práticos que acelerem a aplicação.",
+    q: "Consigo gerar recibo ou nota do cliente?",
+    a: "Sim. Dentro do perfil do cliente há o botão Gerar Fechamento, que compila todos os itens do mês em um documento pronto para impressão ou para salvar em PDF.",
   },
   {
-    q: "Em quanto tempo eu consigo começar a aplicar?",
-    a: "A proposta da oferta é permitir aplicação rápida, para que a pessoa já consiga usar IA na rotina logo nas primeiras etapas.",
+    q: "O sistema soma o caixa automaticamente?",
+    a: "Sim. O Painel mostra o total do período com filtros de semana e mês, separando produtos, serviços, valores pagos e em aberto.",
   },
 ];
 
@@ -72,7 +72,6 @@ function LandingPage() {
     const root = rootRef.current;
     if (!root) return;
 
-    // Hero video autoplay resilience
     const videos = Array.from(
       root.querySelectorAll<HTMLVideoElement>(".hero__video, .hero__video--mobile"),
     );
@@ -110,7 +109,6 @@ function LandingPage() {
     window.addEventListener("touchend", globalPlay, { passive: true });
     window.addEventListener("click", globalPlay);
 
-    // Word split for .reveal-write
     const splitWords = (el: Element) => {
       let idx = 0;
       const walk = (node: Node) => {
@@ -142,7 +140,6 @@ function LandingPage() {
     };
     root.querySelectorAll(".reveal-write").forEach(splitWords);
 
-    // IntersectionObserver reveals
     const revealTargets = root.querySelectorAll(
       ".reveal-media, .reveal-side, .reveal-up, .reveal-mark, .reveal-write",
     );
@@ -163,7 +160,6 @@ function LandingPage() {
       revealTargets.forEach((t) => t.classList.add("is-visible"));
     }
 
-    // FAQ
     const triggers = Array.from(root.querySelectorAll<HTMLButtonElement>(".faq-item__trigger"));
     const handlers: Array<() => void> = [];
     triggers.forEach((t) => {
@@ -199,7 +195,6 @@ function LandingPage() {
 
   return (
     <div ref={rootRef} className="landing page-shell" lang="pt-BR">
-      {/* HERO */}
       <section className="hero">
         <div className="hero__media">
           <video
@@ -209,11 +204,6 @@ function LandingPage() {
             muted
             loop
             playsInline
-            // @ts-ignore
-            webkit-playsinline="true"
-            x5-playsinline="true"
-            x5-video-player-type="h5"
-            x5-video-player-fullscreen="false"
             preload="auto"
             disablePictureInPicture
             controlsList="nodownload nofullscreen noremoteplayback"
@@ -227,11 +217,6 @@ function LandingPage() {
             muted
             loop
             playsInline
-            // @ts-ignore
-            webkit-playsinline="true"
-            x5-playsinline="true"
-            x5-video-player-type="h5"
-            x5-video-player-fullscreen="false"
             preload="auto"
             disablePictureInPicture
             controlsList="nodownload nofullscreen noremoteplayback"
@@ -241,25 +226,24 @@ function LandingPage() {
         </div>
         <div className="hero__grid">
           <h1 className="hero__title">
-            <span>DOMINE A IA E</span>
+            <span>GERENCIE CLIENTES,</span>
             <br />
-            <span>TRANSFORME SUAS</span>
+            <span>SERVIÇOS E CAIXA</span>
             <br />
-            <span>REDES SOCIAIS</span>
+            <span>EM UM SÓ PAINEL</span>
           </h1>
           <p className="hero__sub">
-            Aprenda a usar inteligência artificial para planejar, produzir, organizar e acelerar a gestão das suas redes sociais com mais clareza, consistência e menos sobrecarga no dia a dia.
+            Painel de Controle para cadastrar clientes, lançar produtos e serviços, acompanhar o caixa por semana ou mês e gerar fechamento mensal com um clique.
           </p>
           <div className="hero__actions">
-            <a className="button button--primary" href="#buy">
-              Quero Dominar a IA Agora
-            </a>
+            <Link className="button button--primary" to="/auth">
+              Acessar o Painel
+            </Link>
           </div>
         </div>
         <div className="hero__line" aria-hidden="true" />
       </section>
 
-      {/* ABOUT */}
       <section className="section-dark about-block">
         <div className="about-block__inner">
           <figure className="about-block__media reveal-media">
@@ -269,63 +253,61 @@ function LandingPage() {
             <h2 className="about-block__title">
               O CAOS DA
               <br />
-              ROTINA DIGITAL
+              GESTÃO MANUAL
             </h2>
             <div className="about-block__tags">
-              <span className="about-block__tag">falta de tempo</span>
-              <span className="about-block__tag">bloqueio criativo</span>
-              <span className="about-block__tag">atraso constante</span>
+              <span className="about-block__tag">papéis soltos</span>
+              <span className="about-block__tag">planilhas quebradas</span>
+              <span className="about-block__tag">caixa no escuro</span>
             </div>
             <p className="about-block__copy">
-              Criar conteúdo, manter frequência, responder demandas, pensar em calendário e ainda tentar crescer nas redes virou uma operação pesada para quem faz tudo sozinho ou depende de processos lentos.
+              Anotar cliente em caderno, controlar caixa em planilha, cobrar de memória e ainda tentar lembrar o que foi pago e o que ficou em aberto virou uma operação pesada para quem toca o negócio sozinho.
             </p>
           </div>
         </div>
       </section>
 
-      {/* SERVICES */}
       <section className="section-dark services-block">
         <div className="services-block__inner">
-          <h2 className="services-block__title">O QUE VOCÊ GANHA COM O SOCIAL IA PRO</h2>
+          <h2 className="services-block__title">O QUE O PAINEL DE CONTROLE OFERECE</h2>
           <div className="services-grid">
             <article className="service-card reveal-up" style={{ transitionDelay: "0ms" }}>
               <div className="service-card__icon service-card__icon--headset" />
-              <h3 className="service-card__title">Mais Agilidade</h3>
+              <h3 className="service-card__title">Cadastro de Clientes</h3>
               <p className="service-card__copy">
-                Aprenda a usar IA para acelerar ideias, roteiros, legendas, planejamentos e tarefas que hoje consomem horas da sua semana.
+                Cadastre clientes com contato e observações. Busque pelo nome e abra o histórico completo em segundos.
               </p>
             </article>
             <article className="service-card reveal-up" style={{ transitionDelay: "180ms" }}>
               <div className="service-card__icon service-card__icon--play" />
-              <h3 className="service-card__title">Mais Clareza</h3>
+              <h3 className="service-card__title">Controle de Caixa</h3>
               <p className="service-card__copy">
-                Tenha um processo objetivo para organizar conteúdo, manter consistência e parar de depender apenas de improviso.
+                Total do período somado automaticamente, com filtros semanal e mensal, separando produtos, serviços, pagos e em aberto.
               </p>
             </article>
             <article className="service-card reveal-up" style={{ transitionDelay: "360ms" }}>
               <div className="service-card__icon service-card__icon--screen" />
-              <h3 className="service-card__title">Mais Escala</h3>
+              <h3 className="service-card__title">Fechamento Mensal</h3>
               <p className="service-card__copy">
-                Descubra como usar ferramentas de IA para produzir melhor sem perder identidade, estratégia e qualidade de comunicação.
+                Um clique para gerar o recibo do mês com todos os itens do cliente, pronto para imprimir ou salvar em PDF.
               </p>
             </article>
           </div>
         </div>
       </section>
 
-      {/* COMPARISON */}
       <section className="section-dark comparison-block">
         <div className="comparison-block__inner">
           <h2 className="comparison-block__title">VEJA A DIFERENÇA NA PRÁTICA</h2>
           <div className="comparison-grid">
             <article className="comparison-card comparison-card--neg reveal-up">
-              <h3 className="comparison-card__title">Sem o Social IA Pro</h3>
+              <h3 className="comparison-card__title">Sem o Painel</h3>
               <ul className="comparison-list">
                 {[
-                  "Demora para criar conteúdo",
-                  "Falta de constância nas postagens",
-                  "Decisões baseadas em improviso",
-                  "Mais desgaste e menos produção",
+                  "Cliente perdido em anotações soltas",
+                  "Caixa somado no braço, com erros",
+                  "Cobrança feita de memória",
+                  "Fechamento demora horas para montar",
                 ].map((t) => (
                   <li key={t} className="reveal-mark">
                     {t}
@@ -334,13 +316,13 @@ function LandingPage() {
               </ul>
             </article>
             <article className="comparison-card comparison-card--pos reveal-up">
-              <h3 className="comparison-card__title">Com o Social IA Pro</h3>
+              <h3 className="comparison-card__title">Com o Painel</h3>
               <ul className="comparison-list">
                 {[
-                  "Produção mais rápida e estruturada",
-                  "Processo claro para publicar com frequência",
-                  "Uso estratégico de prompts e ferramentas",
-                  "Mais resultado com menos esforço operacional",
+                  "Histórico completo por cliente com busca",
+                  "Total do período somado automaticamente",
+                  "Status pago/em aberto por lançamento",
+                  "Recibo do mês gerado em um clique",
                 ].map((t) => (
                   <li key={t} className="reveal-mark">
                     {t}
@@ -350,57 +332,55 @@ function LandingPage() {
             </article>
           </div>
           <div className="comparison-block__cta">
-            <a className="button button--comparison" href="#buy">
-              Quero Dominar a IA Agora
-            </a>
+            <Link className="button button--comparison" to="/auth">
+              Acessar o Painel
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* QUOTE */}
       <section className="section-dark quote-block">
         <div className="quote-block__inner">
           <div className="quote-panel">
             <p className="quote-text reveal-write">
-              Você não vai apenas usar ferramentas, <em>vai aprender um método aplicável.</em> O foco é transformar IA em processo real para gerenciar redes sociais.
+              O sistema não substitui o seu atendimento, <em>ele organiza a sua operação.</em> Menos improviso, mais controle real do dia a dia.
             </p>
             <p className="quote-meta reveal-write reveal-write--delay">
-              Em vez de dicas soltas ou promessas genéricas, o treinamento mostra como encaixar a IA na rotina, com lógica, fluxo e uso prático.
+              Cadastro, lançamento, caixa e fechamento em um único fluxo — pensado para quem gerencia clientes e serviços todos os dias.
             </p>
           </div>
         </div>
       </section>
 
-      {/* DELIVERABLES */}
       <section className="section-light deliverables-block">
         <div className="deliverables-block__inner">
           <div className="deliverables-block__header">
             <h2 className="deliverables-block__title">
-              O QUE VOCÊ
+              O QUE ESTÁ
               <br />
-              VAI RECEBER
+              INCLUÍDO
             </h2>
           </div>
           <div className="deliverables-grid">
             {[
               {
-                t: "Treinamento Base",
-                c: "A base completa para entender como aplicar IA no seu processo de criação, organização e gestão de conteúdo.",
+                t: "Cadastro de Clientes",
+                c: "Ficha do cliente com contato, observações e busca por nome para achar em segundos.",
                 off: false,
               },
               {
-                t: "Prompts Prontos",
-                c: "Modelos práticos para acelerar ideias, roteiros, legendas e tarefas que hoje travam sua produção no dia a dia.",
+                t: "Lançamentos",
+                c: "Registre produtos e serviços com data, valor e status pago ou em aberto.",
                 off: true,
               },
               {
-                t: "Fluxo de Produção",
-                c: "Um caminho claro para organizar publicação, manter constância e transformar IA em rotina de execução real.",
+                t: "Controle de Caixa",
+                c: "Painel com totais somados automaticamente, filtros semanal e mensal.",
                 off: false,
               },
               {
-                t: "Aplicação Estratégica",
-                c: "Direcionamento para usar IA com mais intenção, sem perder posicionamento, clareza da marca e consistência na comunicação.",
+                t: "Fechamento Mensal",
+                c: "Recibo do mês pronto para impressão ou PDF, com todos os itens do cliente.",
                 off: true,
               },
             ].map((d, i) => (
@@ -420,30 +400,24 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* OFFER */}
-      <section className="section-dark offer-block" id="buy">
+      <section className="section-dark offer-block" id="acesso">
         <div className="offer-block__inner">
           <div className="offer-card reveal-up">
-            <span className="offer-eyebrow">Oferta</span>
-            <h2 className="offer-title">TREINAMENTO IA PARA REDES SOCIAIS</h2>
+            <span className="offer-eyebrow">Acesso</span>
+            <h2 className="offer-title">PAINEL DE GESTÃO COMPLETO</h2>
             <ul className="offer-list">
-              <li>Acesso ao treinamento completo</li>
-              <li>Método prático de aplicação da IA</li>
-              <li>Modelos para produção de conteúdo</li>
-              <li>Estrutura para gestão mais eficiente</li>
+              <li>Acesso individual por e-mail e senha</li>
+              <li>Cadastro ilimitado de clientes</li>
+              <li>Lançamento de produtos e serviços</li>
+              <li>Controle de caixa e fechamento mensal</li>
             </ul>
-            <div className="offer-price">
-              <span className="offer-price__label">Investimento</span>
-              <span className="offer-price__value">R$497</span>
-            </div>
-            <a className="button button--offer" href="#buy">
-              Quero Garantir Meu Acesso Agora
-            </a>
+            <Link className="button button--offer" to="/auth">
+              Acessar o Painel Agora
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* GUARANTEE */}
       <section className="section-dark guarantee-block">
         <div className="guarantee-block__inner">
           <div className="guarantee-card reveal-up">
@@ -457,20 +431,19 @@ function LandingPage() {
               </div>
             </div>
             <div className="guarantee-content">
-              <span className="guarantee-content__eyebrow">Garantia</span>
-              <h2 className="guarantee-content__title">7 dias de garantia</h2>
+              <span className="guarantee-content__eyebrow">Suporte</span>
+              <h2 className="guarantee-content__title">Seus dados, seu controle</h2>
               <p className="guarantee-content__copy">
-                Você pode apresentar aqui sua garantia para reduzir objeções e aumentar a confiança de quem está quase entrando no treinamento.
+                Cada usuário só enxerga os próprios clientes e lançamentos. Sem exposição, sem mistura de dados entre operadores.
               </p>
               <p className="guarantee-content__note">
-                Substitua este texto pelos termos reais da garantia, prazo e condições.
+                Backup automático e acesso via navegador em qualquer dispositivo.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="section-dark faq-block">
         <div className="faq-block__inner">
           <div className="faq-block__header">
@@ -480,11 +453,7 @@ function LandingPage() {
           <div className="faq-list">
             {FAQ_ITEMS.map((item) => (
               <div key={item.q} className="faq-item">
-                <button
-                  type="button"
-                  className="faq-item__trigger"
-                  aria-expanded="false"
-                >
+                <button type="button" className="faq-item__trigger" aria-expanded="false">
                   <span>{item.q}</span>
                   <span className="faq-item__icon" aria-hidden="true" />
                 </button>
@@ -497,7 +466,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="footer-minimal section-dark">
         <p>Todos os direitos reservados.</p>
       </footer>

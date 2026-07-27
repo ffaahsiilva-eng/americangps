@@ -1,0 +1,242 @@
+/* Shared app UI on top of landing.css (dark editorial) */
+.app-shell {
+  min-height: 100vh;
+  background: #000;
+  color: #f3f3f1;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+.app-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 48px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.app-nav__brand {
+  text-transform: uppercase; letter-spacing: .28em; font-size: .78rem;
+  color: rgba(255,255,255,.72);
+}
+.app-nav__links { display: flex; gap: 22px; align-items: center; }
+.app-nav__links a {
+  color: rgba(255,255,255,.6); font-size: .88rem; letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.app-nav__links a:hover, .app-nav__links a.active { color: #f3f3f1; }
+.app-nav__signout {
+  background: transparent; border: 1px solid rgba(255,255,255,.14);
+  color: #f3f3f1; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: .82rem;
+}
+.app-main { padding: 48px; max-width: 1240px; margin: 0 auto; }
+.app-title {
+  font-size: clamp(2.4rem, 4.6vw, 3.6rem); line-height: 1;
+  letter-spacing: -.045em; font-weight: 300; text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.app-subtitle { color: rgba(255,255,255,.5); margin: 0 0 32px; font-size: 1rem; }
+
+/* Inputs */
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.field label {
+  font-size: .74rem; text-transform: uppercase; letter-spacing: .2em;
+  color: rgba(255,255,255,.5);
+}
+.field input, .field select, .field textarea {
+  background: rgba(255,255,255,.04); color: #f3f3f1;
+  border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
+  padding: 14px 16px; font-family: inherit; font-size: 1rem;
+  outline: none; transition: border 180ms;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: rgba(255,255,255,.4);
+}
+.field textarea { min-height: 100px; resize: vertical; }
+
+/* Panels / cards */
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border: 1px solid rgba(255,255,255,.08); border-radius: 20px;
+  padding: 28px;
+}
+
+/* Stats grid */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
+.stat {
+  background: #111; border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; padding: 22px;
+}
+.stat__label {
+  text-transform: uppercase; letter-spacing: .22em; font-size: .68rem;
+  color: rgba(255,255,255,.46);
+}
+.stat__value {
+  margin-top: 10px; font-size: 1.9rem; font-weight: 400; letter-spacing: -.02em;
+}
+.stat--accent .stat__value { color: #dfc19a; }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 14px 12px; text-align: left; font-size: .92rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.table th {
+  color: rgba(255,255,255,.5); text-transform: uppercase;
+  letter-spacing: .16em; font-size: .7rem; font-weight: 500;
+}
+.table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* Chips */
+.chip {
+  display: inline-flex; align-items: center; padding: 4px 10px;
+  border-radius: 999px; font-size: .72rem; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.chip--pago { background: rgba(223,193,154,.15); color: #dfc19a; }
+.chip--aberto { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
+.chip--produto { background: rgba(255,255,255,.06); color: #f3f3f1; }
+.chip--servico { background: rgba(223,193,154,.1); color: #dfc19a; }
+
+.row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.row--between { justify-content: space-between; }
+
+.button--ghost {
+  background: transparent; border: 1px solid rgba(255,255,255,.14);
+  color: #f3f3f1; padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: .88rem;
+}
+.button--ghost.active {
+  background: #f4f4f1; color: #111; border-color: #f4f4f1;
+}
+.button--danger { color: #ff8b8b; border-color: rgba(255,139,139,.3); background: transparent; }
+.button--sm { padding: 6px 12px; font-size: .78rem; border-radius: 8px; }
+
+.grid-cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Client cards grid */
+.client-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.client-card {
+  background: #111; border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px; padding: 24px; cursor: pointer;
+  transition: transform 200ms, border 200ms;
+  text-align: left; color: inherit; display: block;
+}
+.client-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,.16); }
+.client-card__name { font-size: 1.3rem; font-weight: 400; margin: 0 0 6px; letter-spacing: -.01em; }
+.client-card__meta { color: rgba(255,255,255,.5); font-size: .86rem; margin: 0; }
+
+/* Auth screen */
+.auth-shell {
+  min-height: 100vh; background: #000; color: #f3f3f1;
+  display: flex; align-items: center; justify-content: center; padding: 48px 16px;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+.auth-card {
+  width: min(100%, 440px);
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px; padding: 40px 36px;
+}
+.auth-card h1 {
+  font-size: 2rem; font-weight: 300; letter-spacing: -.03em;
+  text-transform: uppercase; margin: 0 0 24px;
+}
+.auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+.auth-tab {
+  flex: 1; padding: 10px; background: transparent; color: rgba(255,255,255,.5);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+  font-family: inherit; font-size: .82rem; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.auth-tab.active { color: #f3f3f1; border-color: rgba(255,255,255,.3); }
+.auth-error {
+  background: rgba(255,139,139,.1); border: 1px solid rgba(255,139,139,.3);
+  color: #ff8b8b; padding: 12px 14px; border-radius: 10px;
+  font-size: .88rem; margin-bottom: 14px;
+}
+.auth-info {
+  background: rgba(223,193,154,.1); border: 1px solid rgba(223,193,154,.3);
+  color: #dfc19a; padding: 12px 14px; border-radius: 10px;
+  font-size: .88rem; margin-bottom: 14px;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.modal {
+  width: min(100%, 520px); background: #0b0b0b;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
+  padding: 32px;
+}
+.modal h2 {
+  font-size: 1.6rem; font-weight: 300; letter-spacing: -.02em;
+  margin: 0 0 20px; text-transform: uppercase;
+}
+
+/* Print / invoice */
+.invoice-page {
+  min-height: 100vh; background: #fff; color: #111; padding: 48px;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+.invoice {
+  max-width: 800px; margin: 0 auto;
+}
+.invoice__header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border-bottom: 2px solid #111; padding-bottom: 20px; margin-bottom: 30px;
+}
+.invoice__brand { text-transform: uppercase; letter-spacing: .2em; font-size: .9rem; }
+.invoice__title {
+  font-size: 2.2rem; font-weight: 300; letter-spacing: -.03em;
+  text-transform: uppercase; margin: 0;
+}
+.invoice__meta { color: #555; font-size: .88rem; margin-top: 4px; }
+.invoice__client { margin: 24px 0 32px; }
+.invoice__client h2 {
+  font-size: 1rem; font-weight: 600; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .1em;
+}
+.invoice table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+.invoice th, .invoice td {
+  padding: 10px 12px; border-bottom: 1px solid #ddd;
+  font-size: .92rem; text-align: left;
+}
+.invoice th {
+  background: #f5f5f2; text-transform: uppercase; letter-spacing: .1em;
+  font-size: .74rem; font-weight: 600;
+}
+.invoice td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.invoice__totals { text-align: right; font-size: 1rem; }
+.invoice__totals div { padding: 6px 0; }
+.invoice__totals .grand {
+  font-size: 1.6rem; font-weight: 500;
+  border-top: 2px solid #111; margin-top: 12px; padding-top: 12px;
+}
+.invoice__footer {
+  margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;
+  font-size: .8rem; color: #666; text-align: center;
+}
+.invoice-actions {
+  max-width: 800px; margin: 0 auto 24px;
+  display: flex; gap: 12px; justify-content: flex-end;
+}
+.invoice-actions button, .invoice-actions a {
+  padding: 10px 20px; border-radius: 10px; font-family: inherit;
+  font-size: .88rem; cursor: pointer; border: 1px solid #111; background: #111; color: #fff;
+}
+.invoice-actions a.secondary { background: #fff; color: #111; }
+
+@media print {
+  .invoice-actions, .no-print { display: none !important; }
+  .invoice-page { padding: 0; }
+  body { background: #fff !important; }
+}
+
+@media (max-width: 900px) {
+  .app-nav { padding: 18px 20px; flex-wrap: wrap; gap: 12px; }
+  .app-main { padding: 24px 20px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .client-grid { grid-template-columns: 1fr; }
+  .grid-cols-2 { grid-template-columns: 1fr; }
+  .table th, .table td { padding: 10px 8px; font-size: .84rem; }
+}
