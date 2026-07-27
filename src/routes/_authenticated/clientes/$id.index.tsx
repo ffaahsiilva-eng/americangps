@@ -51,10 +51,16 @@ function ClientDetail() {
   const togglePaidFn = useServerFn(toggleSalePaid);
   const deleteSaleFn = useServerFn(deleteSale);
   const deleteClientFn = useServerFn(deleteClient);
+  const getCompanyFn = useServerFn(getCompanySettings);
 
   const client = useQuery({
     queryKey: ["client", id],
     queryFn: () => getClientFn({ data: { id } }),
+  });
+
+  const company = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: () => getCompanyFn({}),
   });
 
   const { from, to } = useMemo(() => monthRange(month), [month]);
@@ -64,26 +70,46 @@ function ClientDetail() {
     queryFn: () => listSalesFn({ data: { clientId: id, from, to } }),
   });
 
+  type FinalizedContext = {
+    items: ReceiptItem[];
+    method: string | null;
+    dateStr: string;
+    total: number;
+  };
+  const [receipt, setReceipt] = useState<FinalizedContext | null>(null);
+
   const createMut = useMutation({
-    mutationFn: async (items: Array<{
-      kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
-      description: string;
-      amount: number;
-      occurred_at: string;
-      paid: boolean;
-      payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
-    }>) => {
-      for (const it of items) {
-        await createSaleFn({ data: { ...it, client_id: id } });
+    mutationFn: async (ctx: {
+      items: ReceiptItem[];
+      method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+      dateStr: string;
+    }) => {
+      const paid = ctx.method !== null;
+      for (const it of ctx.items) {
+        await createSaleFn({
+          data: {
+            client_id: id,
+            kind: it.category,
+            description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
+            amount: it.total,
+            occurred_at: ctx.dateStr,
+            paid,
+            payment_method: ctx.method,
+          },
+        });
       }
+      return ctx;
     },
-    onSuccess: () => {
+    onSuccess: (ctx) => {
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["cash-summary"] });
       qc.invalidateQueries({ queryKey: ["recent-sales"] });
       setModalOpen(false);
+      const total = ctx.items.reduce((s, i) => s + i.total, 0);
+      setReceipt({ items: ctx.items, method: ctx.method, dateStr: ctx.dateStr, total });
     },
   });
+
 
   const toggleMut = useMutation({
     mutationFn: ({ saleId, paid }: { saleId: string; paid: boolean }) =>
