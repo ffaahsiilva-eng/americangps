@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const STREAMS = [
-  { name: "Oldschool Hip Hop (laut.fm)", url: "https://stream.laut.fm/oldschool-hip-hop" },
+  { name: "Hip Hop Station (radio-ao-vivo)", url: "https://stream.laut.fm/oldschool-hip-hop" },
   { name: "90s90s Hip Hop", url: "https://streams.90s90s.de/hiphop/mp3-192/" },
-  { name: "Hip Hop Classics (laut.fm)", url: "https://stream.laut.fm/hip-hop-classics" },
+  { name: "Hip Hop Classics", url: "https://stream.laut.fm/hip-hop-classics" },
 ];
 
 
@@ -18,6 +18,35 @@ export function RadioPlayer() {
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
+
+  // Autoplay on load — try immediately, fall back to first user gesture.
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.src = STREAMS[0].url + "?t=" + Date.now();
+    const tryPlay = async () => {
+      try {
+        await a.play();
+        setPlaying(true);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    tryPlay().then((ok) => {
+      if (ok) return;
+      const onGesture = async () => {
+        const success = await tryPlay();
+        if (success) {
+          window.removeEventListener("pointerdown", onGesture);
+          window.removeEventListener("keydown", onGesture);
+        }
+      };
+      window.addEventListener("pointerdown", onGesture, { once: false });
+      window.addEventListener("keydown", onGesture, { once: false });
+    });
+  }, []);
+
 
   const toggle = async () => {
     const a = audioRef.current;
