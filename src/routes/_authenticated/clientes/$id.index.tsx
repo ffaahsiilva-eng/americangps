@@ -46,12 +46,11 @@ function ClientDetail() {
   const qc = useQueryClient();
 
   const getClientFn = useServerFn(getClient);
-  const listSalesFn = useServerFn(listSales);
-  const createSaleFn = useServerFn(createSale);
-  const togglePaidFn = useServerFn(toggleSalePaid);
-  const deleteSaleFn = useServerFn(deleteSale);
+  const listNotesFn = useServerFn(listSaleNotes);
+  const createNoteFn = useServerFn(createSaleNote);
   const deleteClientFn = useServerFn(deleteClient);
   const getCompanyFn = useServerFn(getCompanySettings);
+
 
   const client = useQuery({
     queryKey: ["client", id],
