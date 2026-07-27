@@ -48,6 +48,13 @@ function PainelPage() {
   const summaryFn = useServerFn(getCashSummary);
   const listNotesFn = useServerFn(listSaleNotes);
   const getCompanyFn = useServerFn(getCompanySettings);
+  const seriesFn = useServerFn(getCashSeries);
+
+  const series = useQuery({
+    queryKey: ["cash-series", range],
+    queryFn: () => seriesFn({ data: { range } }),
+  });
+
 
 
   const summary = useQuery({
