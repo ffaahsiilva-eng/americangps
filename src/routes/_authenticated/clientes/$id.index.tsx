@@ -268,6 +268,7 @@ function ClientDetail() {
 
       {modalOpen && (
         <SaleModal
+          clientId={id}
           clientName={client.data?.name || ""}
           onClose={() => setModalOpen(false)}
           onSubmit={(data) => createMut.mutate(data)}
@@ -318,12 +319,14 @@ function emptyDraft(): ItemDraft {
 }
 
 function SaleModal({
+  clientId,
   clientName,
   onClose,
   onSubmit,
   loading,
   error,
 }: {
+  clientId: string;
   clientName: string;
   onClose: () => void;
   onSubmit: (data: {
@@ -386,6 +389,34 @@ function SaleModal({
     (inventory.data ?? []).forEach((r) => { if (r.price != null) m.set(r.name, Number(r.price)); });
     return m;
   }, [inventory.data]);
+
+  const lastSales = useQuery({
+    queryKey: ["client-last-prices", clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sales")
+        .select("description, amount, created_at")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      return (data ?? []) as Array<{ description: string; amount: number; created_at: string }>;
+    },
+  });
+
+  const lastPriceByName = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of lastSales.data ?? []) {
+      const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
+      const name = (match?.[1] ?? s.description).trim();
+      const qty = match?.[2] ? parseFloat(match[2].replace(",", ".")) : 1;
+      if (!name || !qty) continue;
+      if (m.has(name)) continue; // first (most recent) wins
+      const unit = Number(s.amount) / qty;
+      if (Number.isFinite(unit)) m.set(name, unit);
+    }
+    return m;
+  }, [lastSales.data]);
 
   async function saveNewItem() {
     const name = newItem.name.trim();
@@ -518,11 +549,11 @@ function SaleModal({
                   value={draft.service}
                   onChange={(e) => {
                     const name = e.target.value;
-                    const price = priceByName.get(name);
+                    const price = lastPriceByName.get(name) ?? priceByName.get(name);
                     setDraft({
                       ...draft,
                       service: name,
-                      unit: price != null ? String(price).replace(".", ",") : draft.unit,
+                      unit: price != null ? String(price.toFixed(2)).replace(".", ",") : draft.unit,
                     });
                   }}
                 >
