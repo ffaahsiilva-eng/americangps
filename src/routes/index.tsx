@@ -44,7 +44,6 @@ function LandingPage() {
     const root = rootRef.current;
     if (!root) return;
 
-
     const splitWords = (el: Element) => {
       let idx = 0;
       const walk = (node: Node) => {
