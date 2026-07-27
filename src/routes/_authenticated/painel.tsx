@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell, fmtBRL } from "@/lib/app-shell";
-import { getCashSummary } from "@/lib/cash.functions";
+import { getCashSummary, getCashSeries } from "@/lib/cash.functions";
 import { listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
@@ -15,6 +15,8 @@ import {
   downloadBlob,
   type ReportClient,
 } from "@/lib/monthly-report";
+import { DashboardCharts } from "@/components/dashboard-charts";
+
 
 
 export const Route = createFileRoute("/_authenticated/painel")({
@@ -46,6 +48,13 @@ function PainelPage() {
   const summaryFn = useServerFn(getCashSummary);
   const listNotesFn = useServerFn(listSaleNotes);
   const getCompanyFn = useServerFn(getCompanySettings);
+  const seriesFn = useServerFn(getCashSeries);
+
+  const series = useQuery({
+    queryKey: ["cash-series", range],
+    queryFn: () => seriesFn({ data: { range } }),
+  });
+
 
 
   const summary = useQuery({
@@ -186,6 +195,10 @@ function PainelPage() {
           <div className="stat__value">{fmtBRL(summary.data?.aberto ?? 0)}</div>
         </div>
       </div>
+
+      <DashboardCharts data={series.data} />
+
+
 
       <div className="panel" style={{ marginBottom: 24 }}>
         <div className="row row--between" style={{ marginBottom: 12, flexWrap: "wrap", gap: 12 }}>
