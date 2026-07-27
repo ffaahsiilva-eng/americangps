@@ -362,8 +362,8 @@
 }
 .pos-list__empty { padding: 28px 20px; color: rgba(255,255,255,.5); text-align: center; }
 .pos-list__num { color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
-.pos-list__desc { display: flex; flex-direction: column; gap: 2px; }
-.pos-list__desc strong { font-weight: 500; }
+.pos-list__desc { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pos-list__desc strong { font-weight: 500; overflow-wrap: anywhere; }
 .pos-list__desc em { font-style: normal; color: rgba(255,255,255,.5); font-size: .78rem; }
 .pos-list__sub { font-weight: 600; color: #dfc19a; }
 .pos-list__remove {
