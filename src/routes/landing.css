@@ -371,6 +371,8 @@ a.button--primary, .button--primary {
   .quote-panel::before, .quote-panel::after { width: 56px; height: 56px; }
   .quote-text { font-size: clamp(1.6rem, 8vw, 2.6rem); }
   .quote-meta { font-size: .98rem; line-height: 1.7; }
+  .landing-footer { padding: 28px 24px; }
+  .landing-footer__text { font-size: .86rem; }
 }
 
 @media (max-width: 360px) {
