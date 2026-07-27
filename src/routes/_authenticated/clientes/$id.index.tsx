@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
-import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
+import { createSaleNote, listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
 import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
@@ -31,6 +31,15 @@ function currentMonth() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+const PAYMENT_LABEL: Record<string, string> = {
+  pix: "PIX",
+  credito: "Crédito",
+  debito: "Débito",
+  dinheiro: "Dinheiro",
+  transferencia: "Transferência",
+};
+
+
 function monthRange(month: string) {
   const [y, m] = month.split("-").map(Number);
   const from = `${month}-01`;
@@ -46,12 +55,11 @@ function ClientDetail() {
   const qc = useQueryClient();
 
   const getClientFn = useServerFn(getClient);
-  const listSalesFn = useServerFn(listSales);
-  const createSaleFn = useServerFn(createSale);
-  const togglePaidFn = useServerFn(toggleSalePaid);
-  const deleteSaleFn = useServerFn(deleteSale);
+  const listNotesFn = useServerFn(listSaleNotes);
+  const createNoteFn = useServerFn(createSaleNote);
   const deleteClientFn = useServerFn(deleteClient);
   const getCompanyFn = useServerFn(getCompanySettings);
+
 
   const client = useQuery({
     queryKey: ["client", id],
@@ -65,9 +73,9 @@ function ClientDetail() {
 
   const { from, to } = useMemo(() => monthRange(month), [month]);
 
-  const sales = useQuery({
-    queryKey: ["sales", id, from, to],
-    queryFn: () => listSalesFn({ data: { clientId: id, from, to } }),
+  const notes = useQuery({
+    queryKey: ["sale-notes", id, from, to],
+    queryFn: () => listNotesFn({ data: { clientId: id, from, to } }),
   });
 
   type FinalizedContext = {
@@ -85,23 +93,23 @@ function ClientDetail() {
       dateStr: string;
     }) => {
       const paid = ctx.method !== null;
-      for (const it of ctx.items) {
-        await createSaleFn({
-          data: {
-            client_id: id,
+      await createNoteFn({
+        data: {
+          client_id: id,
+          occurred_at: ctx.dateStr,
+          payment_method: ctx.method,
+          paid,
+          items: ctx.items.map((it) => ({
             kind: it.category,
             description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
             amount: it.total,
-            occurred_at: ctx.dateStr,
-            paid,
-            payment_method: ctx.method,
-          },
-        });
-      }
+          })),
+        },
+      });
       return ctx;
     },
     onSuccess: (ctx) => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
+      qc.invalidateQueries({ queryKey: ["sale-notes"] });
       qc.invalidateQueries({ queryKey: ["cash-summary"] });
       qc.invalidateQueries({ queryKey: ["recent-sales"] });
       setModalOpen(false);
@@ -110,35 +118,18 @@ function ClientDetail() {
     },
   });
 
-
-  const toggleMut = useMutation({
-    mutationFn: ({ saleId, paid }: { saleId: string; paid: boolean }) =>
-      togglePaidFn({ data: { id: saleId, paid } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
-      qc.invalidateQueries({ queryKey: ["cash-summary"] });
-    },
-  });
-
-  const deleteSaleMut = useMutation({
-    mutationFn: (saleId: string) => deleteSaleFn({ data: { id: saleId } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["sales"] });
-      qc.invalidateQueries({ queryKey: ["cash-summary"] });
-    },
-  });
-
   const totals = useMemo(() => {
-    const items = sales.data ?? [];
+    const list = notes.data ?? [];
     let total = 0;
     let pago = 0;
-    for (const s of items) {
-      const a = Number(s.amount);
+    for (const n of list) {
+      const a = Number(n.total);
       total += a;
-      if (s.paid) pago += a;
+      if (n.paid) pago += a;
     }
     return { total, pago, aberto: total - pago };
-  }, [sales.data]);
+  }, [notes.data]);
+
 
   return (
     <AppShell>
@@ -212,58 +203,51 @@ function ClientDetail() {
 
       <div className="panel">
         <h2 style={{ margin: "0 0 16px", fontWeight: 300, fontSize: "1.4rem", letterSpacing: "-.02em" }}>
-          Itens do mês
+          Notas do mês
         </h2>
-        {sales.data && sales.data.length > 0 ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th className="num">Valor</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.data.map((s) => (
-                <tr key={s.id}>
-                  <td>{fmtDate(s.occurred_at)}</td>
-                  <td>
-                    <span className={`chip chip--${s.kind}`}>{s.kind}</span>
-                  </td>
-                  <td>{s.description}</td>
-                  <td>
-                    <button
-                      className={`chip chip--${s.paid ? "pago" : "aberto"}`}
-                      style={{ border: "none", cursor: "pointer" }}
-                      onClick={() => toggleMut.mutate({ saleId: s.id, paid: !s.paid })}
-                    >
-                      {s.paid ? "Pago" : "Em aberto"}
-                    </button>
-                  </td>
-                  <td className="num">{fmtBRL(Number(s.amount))}</td>
-                  <td>
-                    <button
-                      className="button--ghost button--sm button--danger"
-                      onClick={() => {
-                        if (confirm("Excluir este lançamento?")) deleteSaleMut.mutate(s.id);
-                      }}
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {notes.data && notes.data.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {notes.data.map((n) => {
+              const method = n.payment_method
+                ? PAYMENT_LABEL[n.payment_method] || n.payment_method
+                : "Em aberto";
+              const noteStr = String(n.note_number).padStart(6, "0");
+              return (
+                <div key={n.id} className="note-card">
+                  <div className="note-card__head">
+                    <div>
+                      <div className="note-card__num">Nota Nº {noteStr}</div>
+                      <div className="note-card__meta">
+                        {fmtDate(n.occurred_at)} · {method}
+                      </div>
+                    </div>
+                    <div className="note-card__totals">
+                      <span className={`chip chip--${n.paid ? "pago" : "aberto"}`}>
+                        {n.paid ? "Pago" : "Em aberto"}
+                      </span>
+                      <div className="note-card__total">{fmtBRL(Number(n.total))}</div>
+                    </div>
+                  </div>
+                  <ul className="note-card__items">
+                    {(n.sales ?? []).map((it) => (
+                      <li key={it.id}>
+                        <span className={`chip chip--${it.kind}`}>{it.kind}</span>
+                        <span className="note-card__desc">{it.description}</span>
+                        <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <p style={{ color: "rgba(255,255,255,.5)", margin: 0 }}>
-            Nenhum lançamento neste mês.
+            Nenhuma nota neste mês.
           </p>
         )}
       </div>
+
 
       <div className="row" style={{ marginTop: 32 }}>
         <button

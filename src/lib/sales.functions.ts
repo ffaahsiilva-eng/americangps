@@ -50,25 +50,64 @@ export const createSale = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const toggleSalePaid = createServerFn({ method: "POST" })
+const noteInput = z.object({
+  client_id: z.string().uuid(),
+  occurred_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  payment_method: z
+    .enum(["pix", "credito", "debito", "dinheiro", "transferencia"])
+    .nullable(),
+  paid: z.boolean(),
+  items: z
+    .array(
+      z.object({
+        kind: z.enum(["produto", "servico", "instalacao", "desinstalacao", "manutencao"]),
+        description: z.string().trim().min(1).max(300),
+        amount: z.number().nonnegative().max(9_999_999),
+      }),
+    )
+    .min(1),
+});
+
+export const createSaleNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string; paid: boolean }) =>
-    z.object({ id: z.string().uuid(), paid: z.boolean() }).parse(input),
-  )
+  .inputValidator((input: unknown) => noteInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("sales")
-      .update({ paid: data.paid })
-      .eq("id", data.id);
+    const { data: res, error } = await context.supabase.rpc("create_sale_note", {
+      _client_id: data.client_id,
+      _occurred_at: data.occurred_at,
+      _payment_method: (data.payment_method ?? null) as unknown as string,
+      _paid: data.paid,
+      _items: data.items,
+    });
+
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return res as { note_id: string; note_number: number; total: number };
   });
 
-export const deleteSale = createServerFn({ method: "POST" })
+export const listSaleNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: { clientId?: string; from?: string; to?: string }) =>
+    z
+      .object({
+        clientId: z.string().uuid().optional(),
+        from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      })
+      .parse(input ?? {}),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("sales").delete().eq("id", data.id);
+    let q = context.supabase
+      .from("sale_notes")
+      .select(
+        "id, client_id, note_number, occurred_at, payment_method, total, paid, created_at, sales:sales(id, kind, description, amount)",
+      )
+      .order("occurred_at", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (data.clientId) q = q.eq("client_id", data.clientId);
+    if (data.from) q = q.gte("occurred_at", data.from);
+    if (data.to) q = q.lte("occurred_at", data.to);
+    const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return rows ?? [];
   });
+
