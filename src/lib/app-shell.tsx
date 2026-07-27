@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
 import "@/routes/app.css";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -22,7 +23,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <nav className="app-nav">
         <Link to="/painel" className="app-nav__brand">
-          Sistema de Gestão
+          <img
+            src={americanGpsLogo.url}
+            alt="American GPS"
+            className="app-nav__logo"
+          />
+          <span>Sistema de Gestão</span>
         </Link>
         <div className="app-nav__links">
           <Link to="/painel" className={linkClass("/painel")}>
