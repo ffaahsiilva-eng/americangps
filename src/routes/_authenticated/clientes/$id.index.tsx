@@ -390,6 +390,34 @@ function SaleModal({
     return m;
   }, [inventory.data]);
 
+  const lastSales = useQuery({
+    queryKey: ["client-last-prices", clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sales")
+        .select("description, amount, created_at")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      return (data ?? []) as Array<{ description: string; amount: number; created_at: string }>;
+    },
+  });
+
+  const lastPriceByName = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of lastSales.data ?? []) {
+      const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
+      const name = (match?.[1] ?? s.description).trim();
+      const qty = match?.[2] ? parseFloat(match[2].replace(",", ".")) : 1;
+      if (!name || !qty) continue;
+      if (m.has(name)) continue; // first (most recent) wins
+      const unit = Number(s.amount) / qty;
+      if (Number.isFinite(unit)) m.set(name, unit);
+    }
+    return m;
+  }, [lastSales.data]);
+
   async function saveNewItem() {
     const name = newItem.name.trim();
     if (!name) { setItemError("Informe o nome do item."); return; }
