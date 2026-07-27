@@ -212,6 +212,25 @@ function ClientDetail() {
                 ? PAYMENT_LABEL[n.payment_method] || n.payment_method
                 : "Em aberto";
               const noteStr = String(n.note_number).padStart(6, "0");
+              const receiptItems: ReceiptItem[] = (n.sales ?? []).map((it) => ({
+                category: it.kind as ServiceCategory,
+                service: it.description,
+                qty: 1,
+                unit: Number(it.amount),
+                total: Number(it.amount),
+              }));
+              const ctx = {
+                company: company.data ?? {},
+                logoUrl: americanGpsLogo.url,
+                clientName: client.data?.name || "",
+                clientPhone: client.data?.phone || null,
+                items: receiptItems,
+                total: Number(n.total),
+                method: n.payment_method,
+                dateStr: n.occurred_at,
+                invoiceNumber: n.note_number,
+              };
+              const canWhats = !!sanitizeWhatsappPhone(client.data?.phone);
               return (
                 <div key={n.id} className="note-card">
                   <div className="note-card__head">
@@ -237,6 +256,25 @@ function ClientDetail() {
                       </li>
                     ))}
                   </ul>
+                  <div className="note-card__actions">
+                    <button
+                      type="button"
+                      className="button--ghost button--sm"
+                      onClick={() => openPrintReceipt(ctx)}
+                      title="Imprimir ou salvar em PDF"
+                    >
+                      🖨️ PDF / Imprimir
+                    </button>
+                    <button
+                      type="button"
+                      className="button--ghost button--sm"
+                      onClick={() => openWhatsappReceipt(ctx)}
+                      disabled={!canWhats}
+                      title={canWhats ? "Reenviar para WhatsApp" : "Cliente sem telefone cadastrado"}
+                    >
+                      💬 WhatsApp
+                    </button>
+                  </div>
                 </div>
               );
             })}
