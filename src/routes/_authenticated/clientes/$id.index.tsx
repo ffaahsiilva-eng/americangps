@@ -675,3 +675,85 @@ function SaleModal({
   );
 }
 
+function ReceiptActions({
+  clientName,
+  clientPhone,
+  company,
+  data,
+  onClose,
+}: {
+  clientName: string;
+  clientPhone: string | null;
+  company: {
+    name?: string | null;
+    cnpj?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    email?: string | null;
+  };
+  data: {
+    items: ReceiptItem[];
+    method: string | null;
+    dateStr: string;
+    total: number;
+  };
+  onClose: () => void;
+}) {
+  const ctx = {
+    company,
+    logoUrl: americanGpsLogo.url,
+    clientName,
+    clientPhone,
+    items: data.items,
+    total: data.total,
+    method: data.method,
+    dateStr: data.dateStr,
+  };
+  const hasPhone = !!sanitizeWhatsappPhone(clientPhone);
+
+  return (
+    <div className="pay-overlay" onClick={onClose}>
+      <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="pay-modal__head">
+          <div>
+            <div className="pos-eyebrow">Venda finalizada</div>
+            <h3 className="pay-modal__title">O que deseja fazer?</h3>
+            <div className="pay-modal__sub">
+              Total {data.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            </div>
+          </div>
+          <button className="button--ghost button--sm" onClick={onClose}>
+            Fechar
+          </button>
+        </div>
+        <div className="pay-grid">
+          <button
+            type="button"
+            className="pay-option"
+            onClick={() => openPrintReceipt(ctx)}
+          >
+            <span className="pay-option__icon">🖨</span>
+            <span className="pay-option__label">Imprimir / Salvar PDF</span>
+          </button>
+          <button
+            type="button"
+            className="pay-option"
+            disabled={!hasPhone}
+            title={hasPhone ? "" : "Cliente sem telefone cadastrado"}
+            onClick={() => openWhatsappReceipt(ctx)}
+          >
+            <span className="pay-option__icon">💬</span>
+            <span className="pay-option__label">Enviar WhatsApp</span>
+          </button>
+        </div>
+        {!hasPhone && (
+          <div className="pay-modal__sub" style={{ marginTop: 8, textAlign: "center" }}>
+            Cadastre um telefone no cliente para enviar por WhatsApp.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
