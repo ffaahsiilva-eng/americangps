@@ -709,3 +709,44 @@ html { -webkit-text-size-adjust: 100%; }
 }
 .pay-open-later { align-self: center; margin-top: 4px; min-height: 44px; }
 .pay-loading { text-align: center; color: rgba(255,255,255,.65); font-size: .9rem; }
+
+/* Sale notes (immutable history) */
+.note-card {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: rgba(255,255,255,.02);
+}
+.note-card__head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 14px;
+  padding-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,.08);
+}
+.note-card__num {
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255,255,255,.55); margin-bottom: 4px;
+}
+.note-card__meta {
+  font-size: 1rem; color: rgba(255,255,255,.85); font-weight: 500;
+}
+.note-card__totals {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.note-card__total {
+  font-size: 1.35rem; font-weight: 600; letter-spacing: -.01em;
+}
+.note-card__items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.note-card__items li {
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center; gap: 12px;
+  font-size: .95rem;
+}
+.note-card__desc { color: rgba(255,255,255,.82); min-width: 0; overflow-wrap: anywhere; }
+.note-card__amount { font-variant-numeric: tabular-nums; color: rgba(255,255,255,.9); }
+@media (max-width: 480px) {
+  .note-card { padding: 14px 14px; }
+  .note-card__items li { grid-template-columns: auto minmax(0,1fr); }
+  .note-card__amount { grid-column: 2 / -1; text-align: right; font-weight: 500; }
+}
