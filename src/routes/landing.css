@@ -83,7 +83,15 @@ body.landing-body {
 .hero__grid {
   position: relative; z-index: 1;
   width: min(100%, 1240px); margin: 0 auto;
-  display: grid; grid-template-columns: 1fr; align-items: start; padding-top: 12px;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 48px; padding-top: 12px;
+}
+.hero__content { min-width: 0; }
+.hero__brand {
+  margin: 0 42px 0 0; padding: 0;
+  width: clamp(180px, 22vw, 320px); flex-shrink: 0;
+}
+.hero__brand img {
+  width: 100%; height: auto; display: block;
 }
 .hero__title {
   margin: 14px 0 0 42px; max-width: 860px;
