@@ -195,35 +195,7 @@ function LandingPage() {
 
   return (
     <div ref={rootRef} className="landing page-shell" lang="pt-BR">
-      <section className="hero">
-        <div className="hero__media">
-          <video
-            className="hero__video"
-            src={HERO_VIDEO_DESKTOP}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            disablePictureInPicture
-            controlsList="nodownload nofullscreen noremoteplayback"
-            tabIndex={-1}
-            aria-hidden="true"
-          />
-          <video
-            className="hero__video--mobile"
-            src={HERO_VIDEO_MOBILE}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            disablePictureInPicture
-            controlsList="nodownload nofullscreen noremoteplayback"
-            tabIndex={-1}
-            aria-hidden="true"
-          />
-        </div>
+      <section className="hero hero--plain">
         <div className="hero__grid">
           <h1 className="hero__title">
             <span>GERENCIE CLIENTES,</span>
