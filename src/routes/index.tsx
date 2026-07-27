@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
 import heroVideo from "@/assets/hero-video.mp4.asset.json";
 import "./landing.css";
 
@@ -122,7 +123,7 @@ function LandingPage() {
             </div>
           </div>
           <figure className="hero__brand">
-            <video src={heroVideo.url} autoPlay muted loop playsInline />
+            <img src={americanGpsLogo.url} alt="American GPS" />
           </figure>
         </div>
         <div className="hero__line" aria-hidden="true" />
@@ -131,7 +132,7 @@ function LandingPage() {
       <section className="section-dark about-block">
         <div className="about-block__inner">
           <figure className="about-block__media reveal-media">
-            <img src={IMG_ABOUT} alt="" />
+            <video src={heroVideo.url} autoPlay muted loop playsInline />
           </figure>
           <div className="about-block__content reveal-side">
             <h2 className="about-block__title">
