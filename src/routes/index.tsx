@@ -231,6 +231,10 @@ function LandingPage() {
         </div>
       </section>
 
+      <footer className="landing-footer">
+        <p className="landing-footer__text">Todos os direitos reservados - Grupo American GPS.</p>
+      </footer>
+
     </div>
   );
 }
