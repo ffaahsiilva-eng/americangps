@@ -503,10 +503,28 @@ function SaleModal({
                 </select>
               </div>
               <div className="field pos-entry__service">
-                <label>Serviço</label>
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span>Serviço</span>
+                  <button
+                    type="button"
+                    className="button--ghost button--sm"
+                    onClick={() => { setItemError(null); setShowNewItem(true); }}
+                    style={{ fontSize: 12, padding: "4px 10px" }}
+                  >
+                    + Novo item
+                  </button>
+                </label>
                 <select
                   value={draft.service}
-                  onChange={(e) => setDraft({ ...draft, service: e.target.value })}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    const price = priceByName.get(name);
+                    setDraft({
+                      ...draft,
+                      service: name,
+                      unit: price != null ? String(price).replace(".", ",") : draft.unit,
+                    });
+                  }}
                 >
                   <option value="">Selecione um serviço…</option>
                   {groups.map((g) => (
