@@ -4,7 +4,16 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getCashSummary } from "@/lib/cash.functions";
-import { listSales } from "@/lib/sales.functions";
+import { listSaleNotes } from "@/lib/sales.functions";
+import { getCompanySettings } from "@/lib/company.functions";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import {
+  openPrintReceipt,
+  openWhatsappReceipt,
+  sanitizeWhatsappPhone,
+  type ReceiptItem,
+} from "@/lib/receipt-print";
+import type { ServiceCategory } from "@/lib/service-catalog";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -17,10 +26,19 @@ export const Route = createFileRoute("/_authenticated/painel")({
   component: PainelPage,
 });
 
+const PAYMENT_LABEL: Record<string, string> = {
+  pix: "PIX",
+  credito: "Crédito",
+  debito: "Débito",
+  dinheiro: "Dinheiro",
+  transferencia: "Transferência",
+};
+
 function PainelPage() {
   const [range, setRange] = useState<"week" | "month">("month");
   const summaryFn = useServerFn(getCashSummary);
-  const listFn = useServerFn(listSales);
+  const listNotesFn = useServerFn(listSaleNotes);
+  const getCompanyFn = useServerFn(getCompanySettings);
 
   const summary = useQuery({
     queryKey: ["cash-summary", range],
@@ -28,8 +46,13 @@ function PainelPage() {
   });
 
   const recent = useQuery({
-    queryKey: ["recent-sales"],
-    queryFn: () => listFn({ data: { limit: 15 } }),
+    queryKey: ["recent-notes"],
+    queryFn: () => listNotesFn({ data: { limit: 10 } }),
+  });
+
+  const company = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: () => getCompanyFn({}),
   });
 
   return (
@@ -91,34 +114,83 @@ function PainelPage() {
           </h2>
         </div>
         {recent.data && recent.data.length > 0 ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th className="num">Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.data.map((s) => (
-                <tr key={s.id}>
-                  <td>{fmtDate(s.occurred_at)}</td>
-                  <td>
-                    <span className={`chip chip--${s.kind}`}>{s.kind}</span>
-                  </td>
-                  <td>{s.description}</td>
-                  <td>
-                    <span className={`chip chip--${s.paid ? "pago" : "aberto"}`}>
-                      {s.paid ? "Pago" : "Em aberto"}
-                    </span>
-                  </td>
-                  <td className="num">{fmtBRL(Number(s.amount))}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {recent.data.map((n) => {
+              const method = n.payment_method
+                ? PAYMENT_LABEL[n.payment_method] || n.payment_method
+                : "Em aberto";
+              const noteStr = String(n.note_number).padStart(6, "0");
+              const clientName = n.client?.name || "Cliente";
+              const clientPhone = n.client?.phone || null;
+              const receiptItems: ReceiptItem[] = (n.sales ?? []).map((it) => ({
+                category: it.kind as ServiceCategory,
+                service: it.description,
+                qty: 1,
+                unit: Number(it.amount),
+                total: Number(it.amount),
+              }));
+              const ctx = {
+                company: company.data ?? {},
+                logoUrl: americanGpsLogo.url,
+                clientName,
+                clientPhone,
+                items: receiptItems,
+                total: Number(n.total),
+                method: n.payment_method,
+                dateStr: n.occurred_at,
+                invoiceNumber: n.note_number,
+              };
+              const canWhats = !!sanitizeWhatsappPhone(clientPhone);
+              return (
+                <div key={n.id} className="note-card">
+                  <div className="note-card__head">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="note-card__num">
+                        Nota Nº {noteStr} · {clientName}
+                      </div>
+                      <div className="note-card__meta">
+                        {fmtDate(n.occurred_at)} · {method}
+                      </div>
+                    </div>
+                    <div className="note-card__totals">
+                      <span className={`chip chip--${n.paid ? "pago" : "aberto"}`}>
+                        {n.paid ? "Pago" : "Em aberto"}
+                      </span>
+                      <div className="note-card__total">{fmtBRL(Number(n.total))}</div>
+                    </div>
+                  </div>
+                  <ul className="note-card__items">
+                    {(n.sales ?? []).map((it) => (
+                      <li key={it.id}>
+                        <span className={`chip chip--${it.kind}`}>{it.kind}</span>
+                        <span className="note-card__desc">{it.description}</span>
+                        <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="note-card__actions">
+                    <button
+                      type="button"
+                      className="button--ghost button--sm"
+                      onClick={() => openPrintReceipt(ctx)}
+                      title="Imprimir ou salvar em PDF"
+                    >
+                      🖨️ PDF / Imprimir
+                    </button>
+                    <button
+                      type="button"
+                      className="button--ghost button--sm"
+                      onClick={() => openWhatsappReceipt(ctx)}
+                      disabled={!canWhats}
+                      title={canWhats ? "Reenviar para WhatsApp" : "Cliente sem telefone cadastrado"}
+                    >
+                      💬 WhatsApp
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <p style={{ color: "rgba(255,255,255,.5)", margin: 0 }}>
             Nenhum lançamento ainda. Cadastre clientes e adicione vendas/serviços na aba Clientes.
