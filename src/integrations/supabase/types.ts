@@ -123,6 +123,7 @@ export type Database = {
           occurred_at: string
           owner_id: string
           paid: boolean
+          payment_method: string | null
         }
         Insert: {
           amount: number
@@ -134,6 +135,7 @@ export type Database = {
           occurred_at?: string
           owner_id: string
           paid?: boolean
+          payment_method?: string | null
         }
         Update: {
           amount?: number
@@ -145,6 +147,7 @@ export type Database = {
           occurred_at?: string
           owner_id?: string
           paid?: boolean
+          payment_method?: string | null
         }
         Relationships: [
           {
