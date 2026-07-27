@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Sistema de Gestão" },
+      { name: "twitter:title", content: "Sistema de Gestão — Clientes, Serviços e Caixa" },
       {
         name: "twitter:description",
         content:
