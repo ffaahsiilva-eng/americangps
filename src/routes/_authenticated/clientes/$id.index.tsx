@@ -558,6 +558,52 @@ function SaleModal({
           </div>
         </aside>
       </div>
+
+      {showPayment && (
+        <div className="pay-overlay" onClick={() => !loading && setShowPayment(false)}>
+          <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pay-modal__head">
+              <div>
+                <div className="pos-eyebrow">Forma de pagamento</div>
+                <h3 className="pay-modal__title">Como foi pago?</h3>
+                <div className="pay-modal__sub">Total {fmtBRL(total)}</div>
+              </div>
+              <button className="button--ghost button--sm" onClick={() => setShowPayment(false)} disabled={loading}>
+                Cancelar
+              </button>
+            </div>
+            <div className="pay-grid">
+              {[
+                { key: "pix", label: "PIX", icon: "◈" },
+                { key: "credito", label: "Crédito", icon: "▭" },
+                { key: "debito", label: "Débito", icon: "▯" },
+                { key: "dinheiro", label: "Dinheiro", icon: "$" },
+                { key: "transferencia", label: "Transferência", icon: "⇄" },
+              ].map((m) => (
+                <button
+                  key={m.key}
+                  type="button"
+                  className="pay-option"
+                  disabled={loading}
+                  onClick={() => confirmPayment(m.key as "pix" | "credito" | "debito" | "dinheiro" | "transferencia")}
+                >
+                  <span className="pay-option__icon">{m.icon}</span>
+                  <span className="pay-option__label">{m.label}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="button--ghost pay-open-later"
+              disabled={loading}
+              onClick={() => confirmPayment(null)}
+            >
+              Deixar em aberto
+            </button>
+            {loading && <div className="pay-loading">Salvando…</div>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
