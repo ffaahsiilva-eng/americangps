@@ -736,6 +736,12 @@ html { -webkit-text-size-adjust: 100%; }
 .note-card__total {
   font-size: 1.35rem; font-weight: 600; letter-spacing: -.01em;
 }
+.note-card__summary {
+  margin-top: 6px;
+  font-size: .82rem;
+  color: rgba(255,255,255,.55);
+  letter-spacing: .02em;
+}
 .note-card__items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .note-card__items li {
   display: grid;
