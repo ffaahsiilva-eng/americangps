@@ -333,17 +333,15 @@ function SaleModal({
 }: {
   clientName: string;
   onClose: () => void;
-  onSubmit: (data: Array<{
-    kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
-    description: string;
-    amount: number;
-    occurred_at: string;
-    paid: boolean;
-    payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
-  }>) => void;
+  onSubmit: (data: {
+    items: ReceiptItem[];
+    method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+    dateStr: string;
+  }) => void;
   loading: boolean;
   error?: string;
 }) {
+
   const [draft, setDraft] = useState<ItemDraft>(emptyDraft());
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
