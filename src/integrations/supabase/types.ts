@@ -14,7 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          amount: number
+          client_id: string
+          created_at: string
+          description: string
+          id: string
+          kind: string
+          occurred_at: string
+          owner_id: string
+          paid: boolean
+        }
+        Insert: {
+          amount: number
+          client_id: string
+          created_at?: string
+          description: string
+          id?: string
+          kind: string
+          occurred_at?: string
+          owner_id: string
+          paid?: boolean
+        }
+        Update: {
+          amount?: number
+          client_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          kind?: string
+          occurred_at?: string
+          owner_id?: string
+          paid?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
