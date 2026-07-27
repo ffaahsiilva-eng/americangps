@@ -15,6 +15,7 @@ import {
   type ReceiptItem,
 } from "@/lib/receipt-print";
 import { NoteCard } from "@/components/note-card";
+import { supabase } from "@/integrations/supabase/client";
 
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
