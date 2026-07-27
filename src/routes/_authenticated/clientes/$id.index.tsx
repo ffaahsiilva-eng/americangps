@@ -395,17 +395,17 @@ function SaleModal({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sales")
-        .select("description, amount, created_at")
+        .select("description, amount, occurred_at, created_at")
         .eq("client_id", clientId)
         .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as Array<{ description: string; amount: number; created_at: string }>;
+      return (data ?? []) as Array<{ description: string; amount: number; occurred_at: string; created_at: string }>;
     },
   });
 
   const lastPriceByName = useMemo(() => {
-    const m = new Map<string, number>();
+    const m = new Map<string, { unit: number; amount: number; qty: number; date: string }>();
     for (const s of lastSales.data ?? []) {
       const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
       const name = (match?.[1] ?? s.description).trim();
@@ -413,7 +413,7 @@ function SaleModal({
       if (!name || !qty) continue;
       if (m.has(name)) continue; // first (most recent) wins
       const unit = Number(s.amount) / qty;
-      if (Number.isFinite(unit)) m.set(name, unit);
+      if (Number.isFinite(unit)) m.set(name, { unit, amount: Number(s.amount), qty, date: s.occurred_at });
     }
     return m;
   }, [lastSales.data]);
