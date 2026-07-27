@@ -112,6 +112,50 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_notes: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          note_number: number
+          occurred_at: string
+          owner_id: string
+          paid: boolean
+          payment_method: string | null
+          total: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          note_number: number
+          occurred_at?: string
+          owner_id: string
+          paid?: boolean
+          payment_method?: string | null
+          total?: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          note_number?: number
+          occurred_at?: string
+          owner_id?: string
+          paid?: boolean
+          payment_method?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           amount: number
@@ -120,6 +164,7 @@ export type Database = {
           description: string
           id: string
           kind: string
+          note_id: string | null
           occurred_at: string
           owner_id: string
           paid: boolean
@@ -132,6 +177,7 @@ export type Database = {
           description: string
           id?: string
           kind: string
+          note_id?: string | null
           occurred_at?: string
           owner_id: string
           paid?: boolean
@@ -144,6 +190,7 @@ export type Database = {
           description?: string
           id?: string
           kind?: string
+          note_id?: string | null
           occurred_at?: string
           owner_id?: string
           paid?: boolean
@@ -157,6 +204,13 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sales_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "sale_notes"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -164,6 +218,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_sale_note: {
+        Args: {
+          _client_id: string
+          _items: Json
+          _occurred_at: string
+          _paid: boolean
+          _payment_method: string
+        }
+        Returns: Json
+      }
       get_or_create_closing: {
         Args: { _client_id: string; _month: string }
         Returns: number
