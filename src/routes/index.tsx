@@ -122,7 +122,7 @@ function LandingPage() {
               </Link>
             </div>
           </div>
-          <figure className="hero__brand shiny-brand">
+          <figure className="hero__brand">
             <img src={americanGpsLogo.url} alt="American GPS" />
           </figure>
         </div>
