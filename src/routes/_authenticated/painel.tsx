@@ -109,7 +109,7 @@ function PainelPage() {
             Últimos lançamentos
           </h2>
         </div>
-        {recent.data && recent.data.length > 0 ? (
+          {recent.data && recent.data.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {recent.data.map((n) => {
               const method = n.payment_method
@@ -138,52 +138,22 @@ function PainelPage() {
               };
               const canWhats = !!sanitizeWhatsappPhone(clientPhone);
               return (
-                <div key={n.id} className="note-card">
-                  <div className="note-card__head">
-                    <div style={{ minWidth: 0 }}>
-                      <div className="note-card__num">
-                        Nota Nº {noteStr} · {clientName}
-                      </div>
-                      <div className="note-card__meta">
-                        {fmtDate(n.occurred_at)} · {method}
-                      </div>
-                    </div>
-                    <div className="note-card__totals">
-                      <span className={`chip chip--${n.paid ? "pago" : "aberto"}`}>
-                        {n.paid ? "Pago" : "Em aberto"}
-                      </span>
-                      <div className="note-card__total">{fmtBRL(Number(n.total))}</div>
-                    </div>
-                  </div>
-                  <ul className="note-card__items">
-                    {(n.sales ?? []).map((it) => (
-                      <li key={it.id}>
-                        <span className={`chip chip--${it.kind}`}>{it.kind}</span>
-                        <span className="note-card__desc">{it.description}</span>
-                        <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="note-card__actions">
-                    <button
-                      type="button"
-                      className="button--ghost button--sm"
-                      onClick={() => openPrintReceipt(ctx)}
-                      title="Imprimir ou salvar em PDF"
-                    >
-                      🖨️ PDF / Imprimir
-                    </button>
-                    <button
-                      type="button"
-                      className="button--ghost button--sm"
-                      onClick={() => openWhatsappReceipt(ctx)}
-                      disabled={!canWhats}
-                      title={canWhats ? "Reenviar para WhatsApp" : "Cliente sem telefone cadastrado"}
-                    >
-                      💬 WhatsApp
-                    </button>
-                  </div>
-                </div>
+                <NoteCard
+                  key={n.id}
+                  note={{
+                    ...n,
+                    sales: n.sales ?? [],
+                    note_number: n.note_number ?? 0,
+                    total: n.total ?? 0,
+                    paid: n.paid ?? false,
+                    payment_method: n.payment_method ?? null,
+                    occurred_at: n.occurred_at ?? "",
+                  }}
+                  method={method}
+                  noteStr={`${noteStr} · ${clientName}`}
+                  ctx={ctx}
+                  canWhats={canWhats}
+                />
               );
             })}
           </div>
