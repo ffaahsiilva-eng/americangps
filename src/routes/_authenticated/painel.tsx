@@ -187,6 +187,37 @@ function PainelPage() {
         </div>
       </div>
 
+      <div className="panel" style={{ marginBottom: 24 }}>
+        <div className="row row--between" style={{ marginBottom: 12, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h2 style={{ margin: 0, fontWeight: 300, fontSize: "1.2rem", letterSpacing: "-.02em" }}>
+              Relatório mensal
+            </h2>
+            <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,.5)", fontSize: 13 }}>
+              PDF com todos os clientes do mês, separados e organizados por nota.
+            </p>
+          </div>
+          <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+            <input
+              type="month"
+              value={reportMonth}
+              onChange={(e) => setReportMonth(e.target.value)}
+              className="input"
+              style={{ minWidth: 160 }}
+            />
+            <button
+              className="button button--primary"
+              onClick={handleDownloadReport}
+              disabled={downloading}
+            >
+              {downloading ? "Gerando…" : "📄 Baixar relatório"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
       <div className="panel">
         <div className="row row--between" style={{ marginBottom: 16 }}>
           <h2 style={{ margin: 0, fontWeight: 300, fontSize: "1.4rem", letterSpacing: "-.02em" }}>
