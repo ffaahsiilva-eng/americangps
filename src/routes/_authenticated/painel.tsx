@@ -38,9 +38,15 @@ const PAYMENT_LABEL: Record<string, string> = {
 
 function PainelPage() {
   const [range, setRange] = useState<"week" | "month">("month");
+  const today = new Date();
+  const [reportMonth, setReportMonth] = useState<string>(
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`,
+  );
+  const [downloading, setDownloading] = useState(false);
   const summaryFn = useServerFn(getCashSummary);
   const listNotesFn = useServerFn(listSaleNotes);
   const getCompanyFn = useServerFn(getCompanySettings);
+
 
   const summary = useQuery({
     queryKey: ["cash-summary", range],
