@@ -268,6 +268,7 @@ function ClientDetail() {
 
       {modalOpen && (
         <SaleModal
+          clientId={id}
           clientName={client.data?.name || ""}
           onClose={() => setModalOpen(false)}
           onSubmit={(data) => createMut.mutate(data)}
