@@ -409,6 +409,10 @@
 .receipt__item { margin: 6px 0; }
 .receipt__item-name { font-weight: 700; }
 .receipt__item-row { display: flex; justify-content: space-between; }
+.receipt__group { margin: 8px 0; }
+.receipt__group-title { text-align: center; font-weight: 700; margin: 8px 0 4px; letter-spacing: 0.06em; }
+.receipt__row--sub { display: flex; justify-content: space-between; font-weight: 700; border-top: 1px dashed #000; margin-top: 6px; padding-top: 4px; }
+
 .receipt__row { display: flex; justify-content: space-between; padding: 3px 0; }
 .receipt__row--total { font-weight: 700; font-size: 1rem; padding-top: 8px; }
 .receipt__foot { margin-top: 8px; font-size: .78rem; color: #444; }

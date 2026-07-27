@@ -530,20 +530,45 @@ function SaleModal({
             {items.length === 0 ? (
               <div className="receipt__empty">Adicione itens para visualizar…</div>
             ) : (
-              items.map((it, idx) => (
-                <div className="receipt__item" key={it.key}>
-                  <div className="receipt__item-name">
-                    {String(idx + 1).padStart(2, "0")} {it.service.toUpperCase()}
-                  </div>
-                  <div className="receipt__item-row">
-                    <span>
-                      {it.qty} UN X {fmtBRL(it.unit)}
-                    </span>
-                    <span>{fmtBRL(it.total)}</span>
-                  </div>
-                </div>
-              ))
+              (() => {
+                const groupsMap = new Map<ServiceCategory, typeof items>();
+                items.forEach((it) => {
+                  const arr = groupsMap.get(it.category) ?? [];
+                  arr.push(it);
+                  groupsMap.set(it.category, arr);
+                });
+                let n = 0;
+                return Array.from(groupsMap.entries()).map(([cat, list]) => {
+                  const catTotal = list.reduce((s, i) => s + i.total, 0);
+                  return (
+                    <div className="receipt__group" key={cat}>
+                      <div className="receipt__group-title">-- {CATEGORY_LABEL[cat].toUpperCase()} --</div>
+                      {list.map((it) => {
+                        n += 1;
+                        return (
+                          <div className="receipt__item" key={it.key}>
+                            <div className="receipt__item-name">
+                              {String(n).padStart(2, "0")} {it.service.toUpperCase()}
+                            </div>
+                            <div className="receipt__item-row">
+                              <span>
+                                {it.qty} UN X {fmtBRL(it.unit)}
+                              </span>
+                              <span>{fmtBRL(it.total)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="receipt__row receipt__row--sub">
+                        <span>SUBTOTAL {CATEGORY_LABEL[cat].toUpperCase()}</span>
+                        <span>{fmtBRL(catTotal)}</span>
+                      </div>
+                    </div>
+                  );
+                });
+              })()
             )}
+
             <div className="receipt__sep" />
             <div className="receipt__row">
               <span>SUBTOTAL</span>
