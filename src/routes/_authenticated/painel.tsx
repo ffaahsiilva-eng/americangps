@@ -63,6 +63,78 @@ function PainelPage() {
     queryFn: () => getCompanyFn({}),
   });
 
+  async function handleDownloadReport() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const [yStr, mStr] = reportMonth.split("-");
+      const year = Number(yStr);
+      const month = Number(mStr);
+      const from = `${yStr}-${mStr}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const to = `${yStr}-${mStr}-${String(lastDay).padStart(2, "0")}`;
+
+      const notes = await listNotesFn({ data: { from, to, limit: 200 } });
+      if (!notes || notes.length === 0) {
+        alert("Nenhuma nota encontrada para o mês selecionado.");
+        return;
+      }
+
+      const byClient = new Map<string, ReportClient>();
+      for (const n of notes) {
+        const key = n.client_id;
+        const clientName = n.client?.name || "Cliente";
+        const clientPhone = n.client?.phone || null;
+        const bucket =
+          byClient.get(key) ?? { clientName, clientPhone, notes: [] };
+        bucket.notes.push({
+          note_number: n.note_number ?? 0,
+          occurred_at: n.occurred_at ?? "",
+          payment_method: n.payment_method ?? null,
+          paid: n.paid ?? false,
+          total: Number(n.total ?? 0),
+          items: (n.sales ?? []).map((it) => ({
+            kind: it.kind as ServiceCategory,
+            description: it.description,
+            amount: Number(it.amount),
+          })),
+        });
+        byClient.set(key, bucket);
+      }
+      // Sort notes ascending by date within each client, and clients by name
+      const clients = Array.from(byClient.values())
+        .map((c) => ({
+          ...c,
+          notes: [...c.notes].sort((a, b) =>
+            a.occurred_at.localeCompare(b.occurred_at),
+          ),
+        }))
+        .sort((a, b) => a.clientName.localeCompare(b.clientName, "pt-BR"));
+
+      const monthNames = [
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+      ];
+      const monthLabel = `${monthNames[month - 1]}/${year}`;
+
+      const blob = await buildMonthlyReportPdfBlob({
+        company: company.data ?? {},
+        logoUrl: americanGpsLogo.url,
+        monthLabel,
+        fromDate: from,
+        toDate: to,
+        clients,
+      });
+      downloadBlob(blob, `Relatorio_${yStr}-${mStr}.pdf`);
+    } catch (e) {
+      console.error(e);
+      alert("Não foi possível gerar o relatório.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+
   return (
     <AppShell>
       <h1 className="app-title">Painel de Controle</h1>
