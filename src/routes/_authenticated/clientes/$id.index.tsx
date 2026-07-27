@@ -549,11 +549,12 @@ function SaleModal({
                   value={draft.service}
                   onChange={(e) => {
                     const name = e.target.value;
-                    const price = lastPriceByName.get(name) ?? priceByName.get(name);
+                    const hist = lastPriceByName.get(name);
+                    const price = hist ? hist.unit : priceByName.get(name);
                     setDraft({
                       ...draft,
                       service: name,
-                      unit: price != null ? String(price.toFixed(2)).replace(".", ",") : draft.unit,
+                      unit: price != null ? price.toFixed(2).replace(".", ",") : draft.unit,
                     });
                   }}
                 >
