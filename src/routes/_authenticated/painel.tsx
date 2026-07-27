@@ -196,6 +196,10 @@ function PainelPage() {
         </div>
       </div>
 
+      <DashboardCharts data={series.data} />
+
+
+
       <div className="panel" style={{ marginBottom: 24 }}>
         <div className="row row--between" style={{ marginBottom: 12, flexWrap: "wrap", gap: 12 }}>
           <div>
