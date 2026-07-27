@@ -27,7 +27,7 @@ export const listSales = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     let q = context.supabase
       .from("sales")
-      .select("id, client_id, kind, description, amount, occurred_at, paid, created_at")
+      .select("id, client_id, kind, description, amount, occurred_at, paid, payment_method, created_at")
       .order("occurred_at", { ascending: false })
       .order("created_at", { ascending: false });
     if (data.clientId) q = q.eq("client_id", data.clientId);
