@@ -31,37 +31,8 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const HERO_VIDEO_DESKTOP =
-  "https://res.cloudinary.com/dalwymbky/video/upload/v1782346534/hero2_gtrjg7.mp4";
-const HERO_VIDEO_MOBILE =
-  "https://res.cloudinary.com/dalwymbky/video/upload/v1782346535/hero2mobile_vy9zzi.mp4";
 const IMG_ABOUT =
   "https://res.cloudinary.com/dalwymbky/image/upload/v1782346528/b2_j1oc3v.png";
-const IMG_DELIVERABLE =
-  "https://res.cloudinary.com/dalwymbky/image/upload/v1782346527/i1_va5clt.png";
-
-const FAQ_ITEMS = [
-  {
-    q: "Como funciona o acesso ao Painel?",
-    a: "Cada usuário cria uma conta com e-mail e senha. O acesso é individual e cada operador só enxerga os próprios clientes e lançamentos.",
-  },
-  {
-    q: "Preciso instalar algo no computador?",
-    a: "Não. O Painel de Controle roda direto pelo navegador, no computador ou no celular, sem instalação.",
-  },
-  {
-    q: "Meus dados ficam seguros?",
-    a: "Sim. Todas as informações ficam armazenadas no banco de dados com controle de acesso individual por usuário.",
-  },
-  {
-    q: "Consigo gerar recibo ou nota do cliente?",
-    a: "Sim. Dentro do perfil do cliente há o botão Gerar Fechamento, que compila todos os itens do mês em um documento pronto para impressão ou para salvar em PDF.",
-  },
-  {
-    q: "O sistema soma o caixa automaticamente?",
-    a: "Sim. O Painel mostra o total do período com filtros de semana e mês, separando produtos, serviços, valores pagos e em aberto.",
-  },
-];
 
 function LandingPage() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -72,43 +43,6 @@ function LandingPage() {
 
     const root = rootRef.current;
     if (!root) return;
-
-    const videos = Array.from(
-      root.querySelectorAll<HTMLVideoElement>(".hero__video, .hero__video--mobile"),
-    );
-    const timers: number[] = [];
-    videos.forEach((v) => {
-      v.muted = true;
-      v.defaultMuted = true;
-      v.autoplay = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.controls = false;
-      v.setAttribute("disablepictureinpicture", "");
-      (v as any).disableRemotePlayback = true;
-      const tryPlay = () => {
-        const p = v.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      };
-      tryPlay();
-      v.addEventListener("loadeddata", tryPlay);
-      v.addEventListener("pause", tryPlay);
-      v.addEventListener("ended", tryPlay);
-      let count = 0;
-      const id = window.setInterval(() => {
-        count++;
-        if (v.paused) tryPlay();
-        if (count > 20 || (!v.paused && v.currentTime > 2)) window.clearInterval(id);
-      }, 1200);
-      timers.push(id);
-    });
-    const globalPlay = () => videos.forEach((v) => v.paused && v.play().catch(() => {}));
-    document.addEventListener("visibilitychange", globalPlay);
-    window.addEventListener("pageshow", globalPlay);
-    window.addEventListener("focus", globalPlay);
-    window.addEventListener("touchstart", globalPlay, { passive: true });
-    window.addEventListener("touchend", globalPlay, { passive: true });
-    window.addEventListener("click", globalPlay);
 
     const splitWords = (el: Element) => {
       let idx = 0;
@@ -161,35 +95,7 @@ function LandingPage() {
       revealTargets.forEach((t) => t.classList.add("is-visible"));
     }
 
-    const triggers = Array.from(root.querySelectorAll<HTMLButtonElement>(".faq-item__trigger"));
-    const handlers: Array<() => void> = [];
-    triggers.forEach((t) => {
-      const handler = () => {
-        const expanded = t.getAttribute("aria-expanded") === "true";
-        triggers.forEach((other) => {
-          other.setAttribute("aria-expanded", "false");
-          const ans = other.parentElement?.querySelector<HTMLElement>(".faq-item__answer");
-          if (ans) ans.hidden = true;
-        });
-        if (!expanded) {
-          t.setAttribute("aria-expanded", "true");
-          const ans = t.parentElement?.querySelector<HTMLElement>(".faq-item__answer");
-          if (ans) ans.hidden = false;
-        }
-      };
-      t.addEventListener("click", handler);
-      handlers.push(() => t.removeEventListener("click", handler));
-    });
-
     return () => {
-      timers.forEach((id) => window.clearInterval(id));
-      document.removeEventListener("visibilitychange", globalPlay);
-      window.removeEventListener("pageshow", globalPlay);
-      window.removeEventListener("focus", globalPlay);
-      window.removeEventListener("touchstart", globalPlay);
-      window.removeEventListener("touchend", globalPlay);
-      window.removeEventListener("click", globalPlay);
-      handlers.forEach((h) => h());
       document.body.classList.remove("landing-body");
     };
   }, []);
@@ -330,123 +236,6 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="section-light deliverables-block">
-        <div className="deliverables-block__inner">
-          <div className="deliverables-block__header">
-            <h2 className="deliverables-block__title">
-              O QUE ESTÁ
-              <br />
-              INCLUÍDO
-            </h2>
-          </div>
-          <div className="deliverables-grid">
-            {[
-              {
-                t: "Cadastro de Clientes",
-                c: "Ficha do cliente com contato, observações e busca por nome para achar em segundos.",
-                off: false,
-              },
-              {
-                t: "Lançamentos",
-                c: "Registre produtos e serviços com data, valor e status pago ou em aberto.",
-                off: true,
-              },
-              {
-                t: "Controle de Caixa",
-                c: "Painel com totais somados automaticamente, filtros semanal e mensal.",
-                off: false,
-              },
-              {
-                t: "Fechamento Mensal",
-                c: "Recibo do mês pronto para impressão ou PDF, com todos os itens do cliente.",
-                off: true,
-              },
-            ].map((d, i) => (
-              <article
-                key={d.t}
-                className={`deliverable-card reveal-up${d.off ? " deliverable-card--offset" : ""}`}
-                style={{ transitionDelay: `${i * 120}ms` }}
-              >
-                <img src={IMG_DELIVERABLE} alt="" />
-                <div className="deliverable-card__caption">
-                  <h3 className="deliverable-card__title">{d.t}</h3>
-                  <p className="deliverable-card__copy">{d.c}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section-dark offer-block" id="acesso">
-        <div className="offer-block__inner">
-          <div className="offer-card reveal-up">
-            <span className="offer-eyebrow">Acesso</span>
-            <h2 className="offer-title">PAINEL DE GESTÃO COMPLETO</h2>
-            <ul className="offer-list">
-              <li>Acesso individual por e-mail e senha</li>
-              <li>Cadastro ilimitado de clientes</li>
-              <li>Lançamento de produtos e serviços</li>
-              <li>Controle de caixa e fechamento mensal</li>
-            </ul>
-            <Link className="button button--offer" to="/auth">
-              Acessar o Painel Agora
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-dark guarantee-block">
-        <div className="guarantee-block__inner">
-          <div className="guarantee-card reveal-up">
-            <div className="guarantee-seal">
-              <div className="guarantee-ring">
-                <div className="guarantee-seven">
-                  <span className="guarantee-seven__back">7</span>
-                  <span className="guarantee-seven__front">7</span>
-                  <span className="guarantee-seven__glow" />
-                </div>
-              </div>
-            </div>
-            <div className="guarantee-content">
-              <span className="guarantee-content__eyebrow">Suporte</span>
-              <h2 className="guarantee-content__title">Seus dados, seu controle</h2>
-              <p className="guarantee-content__copy">
-                Cada usuário só enxerga os próprios clientes e lançamentos. Sem exposição, sem mistura de dados entre operadores.
-              </p>
-              <p className="guarantee-content__note">
-                Backup automático e acesso via navegador em qualquer dispositivo.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-dark faq-block">
-        <div className="faq-block__inner">
-          <div className="faq-block__header">
-            <span className="faq-eyebrow">FAQ</span>
-            <h2 className="faq-block__title">PERGUNTAS FREQUENTES</h2>
-          </div>
-          <div className="faq-list">
-            {FAQ_ITEMS.map((item) => (
-              <div key={item.q} className="faq-item">
-                <button type="button" className="faq-item__trigger" aria-expanded="false">
-                  <span>{item.q}</span>
-                  <span className="faq-item__icon" aria-hidden="true" />
-                </button>
-                <div className="faq-item__answer" hidden>
-                  <p>{item.a}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="footer-minimal section-dark">
-        <p>Todos os direitos reservados.</p>
-      </footer>
     </div>
   );
 }
