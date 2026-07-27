@@ -194,58 +194,51 @@ function ClientDetail() {
 
       <div className="panel">
         <h2 style={{ margin: "0 0 16px", fontWeight: 300, fontSize: "1.4rem", letterSpacing: "-.02em" }}>
-          Itens do mês
+          Notas do mês
         </h2>
-        {sales.data && sales.data.length > 0 ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th className="num">Valor</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.data.map((s) => (
-                <tr key={s.id}>
-                  <td>{fmtDate(s.occurred_at)}</td>
-                  <td>
-                    <span className={`chip chip--${s.kind}`}>{s.kind}</span>
-                  </td>
-                  <td>{s.description}</td>
-                  <td>
-                    <button
-                      className={`chip chip--${s.paid ? "pago" : "aberto"}`}
-                      style={{ border: "none", cursor: "pointer" }}
-                      onClick={() => toggleMut.mutate({ saleId: s.id, paid: !s.paid })}
-                    >
-                      {s.paid ? "Pago" : "Em aberto"}
-                    </button>
-                  </td>
-                  <td className="num">{fmtBRL(Number(s.amount))}</td>
-                  <td>
-                    <button
-                      className="button--ghost button--sm button--danger"
-                      onClick={() => {
-                        if (confirm("Excluir este lançamento?")) deleteSaleMut.mutate(s.id);
-                      }}
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {notes.data && notes.data.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {notes.data.map((n) => {
+              const method = n.payment_method
+                ? PAYMENT_LABEL[n.payment_method] || n.payment_method
+                : "Em aberto";
+              const noteStr = String(n.note_number).padStart(6, "0");
+              return (
+                <div key={n.id} className="note-card">
+                  <div className="note-card__head">
+                    <div>
+                      <div className="note-card__num">Nota Nº {noteStr}</div>
+                      <div className="note-card__meta">
+                        {fmtDate(n.occurred_at)} · {method}
+                      </div>
+                    </div>
+                    <div className="note-card__totals">
+                      <span className={`chip chip--${n.paid ? "pago" : "aberto"}`}>
+                        {n.paid ? "Pago" : "Em aberto"}
+                      </span>
+                      <div className="note-card__total">{fmtBRL(Number(n.total))}</div>
+                    </div>
+                  </div>
+                  <ul className="note-card__items">
+                    {(n.sales ?? []).map((it) => (
+                      <li key={it.id}>
+                        <span className={`chip chip--${it.kind}`}>{it.kind}</span>
+                        <span className="note-card__desc">{it.description}</span>
+                        <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <p style={{ color: "rgba(255,255,255,.5)", margin: 0 }}>
-            Nenhum lançamento neste mês.
+            Nenhuma nota neste mês.
           </p>
         )}
       </div>
+
 
       <div className="row" style={{ marginTop: 32 }}>
         <button
