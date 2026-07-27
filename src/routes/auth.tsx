@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import "./app.css";
@@ -62,6 +62,12 @@ function AuthPage() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
+        <Link to="/" className="auth-back" aria-label="Voltar à página inicial">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+        </Link>
         <h1>Painel de Controle</h1>
         <div className="auth-tabs">
           <button
