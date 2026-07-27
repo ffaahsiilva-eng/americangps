@@ -57,7 +57,7 @@ function ClientDetail() {
 
   const createMut = useMutation({
     mutationFn: (data: {
-      kind: "produto" | "servico";
+      kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
       description: string;
       amount: number;
       occurred_at: string;
