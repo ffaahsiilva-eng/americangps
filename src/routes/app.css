@@ -11,8 +11,12 @@
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
 .app-nav__brand {
+  display: inline-flex; align-items: center; gap: 12px;
   text-transform: uppercase; letter-spacing: .28em; font-size: .78rem;
   color: rgba(255,255,255,.72);
+}
+.app-nav__logo {
+  height: 38px; width: auto; display: block;
 }
 .app-nav__links { display: flex; gap: 22px; align-items: center; }
 .app-nav__links a {
