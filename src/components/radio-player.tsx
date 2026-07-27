@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const STREAMS = [
-  { name: "181.FM Old School Hip Hop", url: "https://listen.181fm.com/181-oldschoolhh_128k.mp3" },
-  { name: "HOT 108 JAMZ", url: "https://s2.free-shoutcast.com/stream/18094" },
+  { name: "Oldschool Hip Hop (laut.fm)", url: "https://stream.laut.fm/oldschool-hip-hop" },
+  { name: "90s90s Hip Hop", url: "https://streams.90s90s.de/hiphop/mp3-192/" },
+  { name: "Hip Hop Classics (laut.fm)", url: "https://stream.laut.fm/hip-hop-classics" },
 ];
+
 
 export function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
