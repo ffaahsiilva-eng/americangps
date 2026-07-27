@@ -282,6 +282,17 @@ function ClientDetail() {
           error={createMut.error?.message}
         />
       )}
+
+      {receipt && (
+        <ReceiptActions
+          clientName={client.data?.name || ""}
+          clientPhone={client.data?.phone || null}
+          company={company.data ?? {}}
+          data={receipt}
+          onClose={() => setReceipt(null)}
+        />
+      )}
+
     </AppShell>
   );
 }
