@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
+import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
