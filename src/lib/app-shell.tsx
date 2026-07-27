@@ -23,7 +23,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <nav className="app-nav">
         <Link to="/painel" className="app-nav__brand">
-          Sistema de Gestão
+          <img
+            src={americanGpsLogo.url}
+            alt="American GPS"
+            className="app-nav__logo"
+          />
+          <span>Sistema de Gestão</span>
         </Link>
         <div className="app-nav__links">
           <Link to="/painel" className={linkClass("/painel")}>
