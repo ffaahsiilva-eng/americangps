@@ -31,6 +31,15 @@ function currentMonth() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+const PAYMENT_LABEL: Record<string, string> = {
+  pix: "PIX",
+  credito: "Crédito",
+  debito: "Débito",
+  dinheiro: "Dinheiro",
+  transferencia: "Transferência",
+};
+
+
 function monthRange(month: string) {
   const [y, m] = month.split("-").map(Number);
   const from = `${month}-01`;
