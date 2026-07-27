@@ -33,7 +33,7 @@ body.landing-body {
   transition: transform 180ms ease, background 180ms ease, border 180ms ease, box-shadow 180ms ease;
 }
 .button:hover, .button:focus { transform: translateY(-1px); }
-.button--primary {
+a.button--primary, .button--primary {
   min-height: 60px; padding: 0 38px;
   background: linear-gradient(180deg, #202020 0%, #050505 100%);
   color: #fff; border: 1px solid rgba(255,255,255,.18);
@@ -83,7 +83,15 @@ body.landing-body {
 .hero__grid {
   position: relative; z-index: 1;
   width: min(100%, 1240px); margin: 0 auto;
-  display: grid; grid-template-columns: 1fr; align-items: start; padding-top: 12px;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 48px; padding-top: 12px;
+}
+.hero__content { min-width: 0; }
+.hero__brand {
+  margin: 0 42px 0 0; padding: 0;
+  width: clamp(180px, 22vw, 320px); flex-shrink: 0;
+}
+.hero__brand img {
+  width: 100%; height: auto; display: block;
 }
 .hero__title {
   margin: 14px 0 0 42px; max-width: 860px;
@@ -453,7 +461,11 @@ body.landing-body {
 /* Responsive */
 @media (max-width: 1100px) {
   .hero { padding: 28px 24px 0; }
-  .hero__grid { grid-template-columns: 1fr; }
+  .hero__grid { grid-template-columns: 1fr; gap: 32px; justify-items: center; text-align: center; }
+  .hero__brand { margin: 0 auto; width: min(260px, 46vw); order: -1; }
+  .hero__title { margin-left: 0; }
+  .hero__sub { margin-left: 0; }
+  .hero__actions { margin-left: 0; justify-content: center; }
   .hero__line { margin-top: 26px; }
   .about-block { padding: 72px 24px; }
   .about-block__inner { grid-template-columns: 1fr; gap: 40px; }
@@ -473,7 +485,8 @@ body.landing-body {
   .hero__video { display: none; }
   .hero__video--mobile { display: block; object-position: center center; transform: scale(1.08); }
   .hero { min-height: 100svh; padding: 18px 16px 0; }
-  .hero__grid { padding-top: 28px; text-align: center; }
+  .hero__grid { padding-top: 28px; text-align: center; gap: 24px; }
+  .hero__brand { width: min(200px, 52vw); }
   .hero__title {
     margin: 18px auto 0; font-size: clamp(2.2rem, 8.8vw, 3.05rem);
     line-height: .94; text-align: center;

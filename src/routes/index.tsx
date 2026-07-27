@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
 import "./landing.css";
 
 export const Route = createFileRoute("/")({
@@ -197,21 +198,26 @@ function LandingPage() {
     <div ref={rootRef} className="landing page-shell" lang="pt-BR">
       <section className="hero hero--plain">
         <div className="hero__grid">
-          <h1 className="hero__title">
-            <span>GERENCIE CLIENTES,</span>
-            <br />
-            <span>SERVIÇOS E CAIXA</span>
-            <br />
-            <span>EM UM SÓ PAINEL</span>
-          </h1>
-          <p className="hero__sub">
-            Painel de Controle para cadastrar clientes, lançar produtos e serviços, acompanhar o caixa por semana ou mês e gerar fechamento mensal com um clique.
-          </p>
-          <div className="hero__actions">
-            <Link className="button button--primary" to="/auth">
-              Acessar o Painel
-            </Link>
+          <div className="hero__content">
+            <h1 className="hero__title">
+              <span>GERENCIE CLIENTES,</span>
+              <br />
+              <span>SERVIÇOS E CAIXA</span>
+              <br />
+              <span>EM UM SÓ PAINEL</span>
+            </h1>
+            <p className="hero__sub">
+              Painel de Controle para cadastrar clientes, lançar produtos e serviços, acompanhar o caixa por semana ou mês e gerar fechamento mensal com um clique.
+            </p>
+            <div className="hero__actions">
+              <Link className="button button--primary" to="/auth">
+                Acessar o Painel
+              </Link>
+            </div>
           </div>
+          <figure className="hero__brand">
+            <img src={americanGpsLogo.url} alt="American GPS" />
+          </figure>
         </div>
         <div className="hero__line" aria-hidden="true" />
       </section>
