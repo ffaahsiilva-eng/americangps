@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell, fmtBRL } from "@/lib/app-shell";
-import { getCashSummary } from "@/lib/cash.functions";
+import { getCashSummary, getCashSeries } from "@/lib/cash.functions";
 import { listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
