@@ -44,42 +44,6 @@ function LandingPage() {
     const root = rootRef.current;
     if (!root) return;
 
-    const videos = Array.from(
-      root.querySelectorAll<HTMLVideoElement>(".hero__video, .hero__video--mobile"),
-    );
-    const timers: number[] = [];
-    videos.forEach((v) => {
-      v.muted = true;
-      v.defaultMuted = true;
-      v.autoplay = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.controls = false;
-      v.setAttribute("disablepictureinpicture", "");
-      (v as any).disableRemotePlayback = true;
-      const tryPlay = () => {
-        const p = v.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      };
-      tryPlay();
-      v.addEventListener("loadeddata", tryPlay);
-      v.addEventListener("pause", tryPlay);
-      v.addEventListener("ended", tryPlay);
-      let count = 0;
-      const id = window.setInterval(() => {
-        count++;
-        if (v.paused) tryPlay();
-        if (count > 20 || (!v.paused && v.currentTime > 2)) window.clearInterval(id);
-      }, 1200);
-      timers.push(id);
-    });
-    const globalPlay = () => videos.forEach((v) => v.paused && v.play().catch(() => {}));
-    document.addEventListener("visibilitychange", globalPlay);
-    window.addEventListener("pageshow", globalPlay);
-    window.addEventListener("focus", globalPlay);
-    window.addEventListener("touchstart", globalPlay, { passive: true });
-    window.addEventListener("touchend", globalPlay, { passive: true });
-    window.addEventListener("click", globalPlay);
 
     const splitWords = (el: Element) => {
       let idx = 0;
