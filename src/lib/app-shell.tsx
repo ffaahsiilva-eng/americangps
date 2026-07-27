@@ -37,6 +37,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/clientes" className={linkClass("/clientes")}>
             Clientes
           </Link>
+          <Link to="/empresa" className={linkClass("/empresa")}>
+            Empresa
+          </Link>
           <button className="app-nav__signout" onClick={signOut}>
             Sair
           </button>
