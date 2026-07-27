@@ -1,0 +1,214 @@
+// Catálogo de serviços extraído da Tabela SIGhRA (REV_05_05).
+// Preços NÃO são cadastrados aqui — cada usuário define o valor por cliente.
+
+export type ServiceCategory = "instalacao" | "desinstalacao" | "manutencao";
+
+export const CATEGORY_LABEL: Record<ServiceCategory, string> = {
+  instalacao: "Instalação / Reinstalação",
+  desinstalacao: "Desinstalação",
+  manutencao: "Manutenção",
+};
+
+export type ServiceGroup = {
+  group: string;
+  items: string[];
+};
+
+export const SERVICE_CATALOG: Record<ServiceCategory, ServiceGroup[]> = {
+  instalacao: [
+    {
+      group: "Sighra Light",
+      items: [
+        "Localizador SIGHRA LIGHT I",
+        "Localizador SIGHRA LIGHT II (C/ Bloqueio)",
+        "Localizador SIGHRA Carreta (Localizador + Nobreak + Sensor Baú + Placa Solar)",
+      ],
+    },
+    {
+      group: "SmartGate",
+      items: [
+        "KIT I - (Kit Básico)",
+        "KIT II - (Kit Básico + SmartTab)",
+        "KIT II A - (Kit Básico + SmartTab + Eng. Eletrônico)",
+        "KIT II B - (Kit Básico + SmartTab + Chicote Espiral + Caixa/Tomada)",
+        "KIT III Truck - Carga Seca (Kit Básico + SmartTab + Chicote Truck + Trava Baú)",
+        "KIT III Truck - Frigorífico (Kit Básico + SmartTab + Chicote Truck + Trava Baú)",
+        "KIT IV Carreta - Carga Seca (Kit Básico + SmartTab + Chicote Espiral + Trava Baú)",
+        "KIT IV Carreta - Frigorífico (Kit Básico + SmartTab + Chicote Espiral + Trava Baú)",
+        "KIT V - (Kit Básico + SmartTab + Satelital Iridium)",
+        "KIT V A - (Kit Básico + SmartTab + Satelital Iridium + Eng. Eletrônico)",
+        "KIT V B - (Kit Básico + SmartTab + Satelital Iridium + Chicote Espiral + Caixa/Tomada)",
+        "KIT VI Truck - Carga Seca (Kit Básico + SmartTab + Satelital Iridium + Trava Baú)",
+        "KIT VI Truck - Frigorífico (Kit Básico + SmartTab + Satelital Iridium + Trava Baú)",
+        "KIT VII Carreta - Carga Seca (Kit Básico + SmartTab + Satelital Iridium + Chicote Espiral + Trava Baú)",
+        "KIT VII Carreta - Frigorífico (Kit Básico + SmartTab + Satelital Iridium + Chicote Espiral + Trava Baú)",
+        "TELEMETRIA - (Buzzer, Acelerômetro, Can/Mecânica, Limpador)",
+      ],
+    },
+    {
+      group: "SmartView",
+      items: [
+        "KIT SmartViewFleet - DASHCAM SM AD PLUS 2.0",
+        "KIT SMARTVIEW (Adas+DSM+Alto Falante+Camera Interna+Camera externa)",
+        "KIT SmartViewFleet - DASHCAM SM AD PLUS 2.0 + Câmeras Externas",
+        "KIT HYBRID SMARTVIEW (Kit SmartView + Kit V A)",
+      ],
+    },
+    {
+      group: "Complementos",
+      items: [
+        "KIT SMART BLOCKER",
+        "VALVULA SOLENOIDE",
+        "MÓDULO DE SENSOR DE TEMP./UMID.",
+        "ANTENA SAT HONEYWELL",
+        "ANTENA SAT IRIDIUM",
+        "TABLET",
+        "TRAVA 5 RODA",
+        "KIT TRAVA DE BAU (Trava + Chapa + Sensor)",
+        "KIT TRAVA DE BAU (Trava + Chapa + Sensor) - ADICIONAL",
+        "BOTAO DE PANICO ADICIONAL",
+        "TELA DE JANELA PAR (Instalação)",
+        "TELA DE JANELA PAR (ligação)",
+        "PLACA SOLAR",
+        "BUZZER",
+        "SENSOR VIOLAÇÃO DE PAINEL",
+        "CHICOTE ESPIRAL CARRETA",
+        "TOMADA DESCANSO",
+        "CAIXA/TOMADA DE ENGATE CARRETA",
+        "SENSOR ENGATE ELETRÔNICO",
+        "BLOQUEIO DE PLATAFORMA",
+      ],
+    },
+    {
+      group: "Valores Padrões / Deslocamento",
+      items: [
+        "Visita Improdutiva",
+        "Revisão Técnica",
+        "Atendimento Emergencial (Veículo Bloqueado, Baú Travado)",
+        "No Show Técnico",
+        "Deslocamento (KM rodado)",
+        "Correio Tec (Transporte de equipamento BAT)",
+      ],
+    },
+  ],
+  desinstalacao: [
+    {
+      group: "Sighra Light",
+      items: [
+        "Visita (Improdutiva)",
+        "Localizador SIGHRA LIGHT I",
+        "Localizador SIGHRA LIGHT II (C/ Bloqueio)",
+        "Localizador SIGHRA Carreta (Localizador + Nobreak + Sensor Baú + Placa Solar)",
+      ],
+    },
+    {
+      group: "SmartGate",
+      items: [
+        "KIT I - (Kit Básico)",
+        "KIT II - (Kit Básico + SmartTab)",
+        "KIT II A - (Kit Básico + SmartTab + Eng. Eletrônico)",
+        "KIT II B - (Kit Básico + SmartTab + Chicote Espiral + Caixa/Tomada)",
+        "KIT III Truck - Carga Seca",
+        "KIT III Truck - Frigorífico",
+        "KIT IV Carreta - Carga Seca",
+        "KIT IV Carreta - Frigorífico",
+        "KIT V - (Kit Básico + SmartTab + Satelital Iridium)",
+        "KIT V A - (Kit Básico + SmartTab + Satelital Iridium + Eng. Eletrônico)",
+        "KIT V B - (Kit Básico + SmartTab + Satelital Iridium + Chicote Espiral + Caixa/Tomada)",
+        "KIT VI Truck - Carga Seca",
+        "KIT VI Truck - Frigorífico",
+        "KIT VII Carreta - Carga Seca",
+        "KIT VII Carreta - Frigorífico",
+      ],
+    },
+    {
+      group: "SmartView",
+      items: [
+        "KIT SmartViewFleet - DASHCAM SM AD PLUS 2.0",
+        "KIT SMARTVIEW (Adas+DSM+Alto Falante+Camera Interna+Camera externa)",
+      ],
+    },
+    {
+      group: "Tecnologia de Terceiros",
+      items: [
+        "LOCALIZADOR LIGHT (OUTRA TECNOLOGIA)",
+        "TECNOLOGIA DE TERCEIROS",
+      ],
+    },
+    {
+      group: "Complementos",
+      items: [
+        "KIT SMART BLOCKER",
+        "VALVULA SOLENOIDE",
+        "MÓDULO DE SENSOR DE TEMP./UMID.",
+        "ANTENA SAT HONEYWELL",
+        "TRAVA 5 RODA",
+        "KIT TRAVA DE BAU (Trava + Chapa + Sensor)",
+        "KIT TRAVA DE BAU (Trava + Chapa + Sensor) - ADICIONAL",
+        "BOTAO DE PANICO ADICIONAL",
+        "TELA DE JANELA PAR",
+      ],
+    },
+  ],
+  manutencao: [
+    {
+      group: "Sighra Light",
+      items: [
+        "Localizador SIGHRA LIGHT I",
+        "Localizador SIGHRA LIGHT II (C/ Bloqueio)",
+        "SIGHRA LIGHT Carreta - Localizador",
+        "SIGHRA LIGHT Carreta - Nobreak",
+        "SIGHRA LIGHT Carreta - Sensor de Baú",
+        "SIGHRA LIGHT Carreta - Placa Solar",
+      ],
+    },
+    {
+      group: "SmartGate",
+      items: [
+        "MÓDULO SMARTGATE (Manutenção / Desligar / Religar)",
+        "ANTENA SAT IRIDIUM",
+        "TELEMETRIA",
+        "SETAS",
+        "SIRENE",
+        "CHICOTE RELE BLOQUEIO",
+        "BOTAO DE PANICO SMARTGATE",
+        "BUZZER",
+        "ANTENA GPS",
+        "CHICOTE SMARTGATE",
+        "SENSOR DE CABINE",
+        "SENSOR VIOLAÇÃO DE PAINEL",
+        "SMART TAB",
+        "BOTAO DE PANICO ADICIONAL",
+        "TELA DE JANELA",
+        "VALVULA SOLENOIDE",
+        "SENSOR ENGATE ELETRÔNICO",
+        "ANTENA SAT HONEYWELL",
+        "SMART BLOCKER",
+        "TRAVA 5 RODA SUBSTITUIÇÃO",
+        "TRAVA 5 RODA REVISÃO",
+        "CHICOTE TRUCK",
+        "TRAVA DE BAU",
+        "TRAVA DE BAU ROLL UP",
+        "SENSOR DE PORTA BAÚ",
+        "CHICOTE ESPIRAL CARRETA",
+        "CAIXA/TOMADA DE ENGATE CARRETA",
+        "MÓDULO DE SENSOR DE TEMP./UMID.",
+      ],
+    },
+    {
+      group: "SmartView",
+      items: [
+        "KIT SMARTVIEW_FLEET - DASHCAM SM AD PLUS 2.0",
+        "MDVR",
+        "MDVR (Desligar / Religar)",
+        "CAMERA CABINE INTERNA (2)",
+        "CAMERA CABINE FADIGA (5)",
+        "CAMERA CABINE ADAS (1)",
+        "CAMERA CABINE PINHOLE (2)",
+        "CAMERA EXTERNA (LA Passageiro - 3)",
+        "CAMERA EXTERNA (LB Motorista - 4)",
+        "CABOS EXTENSORES DE CÂMERAS EXTERNAS",
+      ],
+    },
+  ],
+};

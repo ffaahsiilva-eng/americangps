@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
+import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
@@ -56,7 +57,7 @@ function ClientDetail() {
 
   const createMut = useMutation({
     mutationFn: (data: {
-      kind: "produto" | "servico";
+      kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
       description: string;
       amount: number;
       occurred_at: string;
@@ -252,7 +253,7 @@ function SaleModal({
 }: {
   onClose: () => void;
   onSubmit: (data: {
-    kind: "produto" | "servico";
+    kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
     description: string;
     amount: number;
     occurred_at: string;
@@ -261,35 +262,59 @@ function SaleModal({
   loading: boolean;
   error?: string;
 }) {
-  const [kind, setKind] = useState<"produto" | "servico">("produto");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState<ServiceCategory>("instalacao");
+  const [service, setService] = useState("");
+  const [qty, setQty] = useState("1");
+  const [unit, setUnit] = useState("");
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
   const [paid, setPaid] = useState(false);
+
+  const total = useMemo(() => {
+    const q = parseFloat(qty.replace(",", ".")) || 0;
+    const u = parseFloat(unit.replace(",", ".")) || 0;
+    return q * u;
+  }, [qty, unit]);
+
+  const groups = SERVICE_CATALOG[category];
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>Novo lançamento</h2>
+        <h2>Adicionar serviço</h2>
         {error && <div className="auth-error">{error}</div>}
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const v = parseFloat(amount.replace(",", "."));
-            if (isNaN(v)) return;
-            onSubmit({ kind, description, amount: v, occurred_at: occurredAt, paid });
+            if (!service) return;
+            if (total <= 0) return;
+            const q = parseFloat(qty.replace(",", ".")) || 1;
+            const description = q > 1 ? `${service} (x${q})` : service;
+            onSubmit({
+              kind: category,
+              description,
+              amount: total,
+              occurred_at: occurredAt,
+              paid,
+            });
           }}
         >
           <div className="grid-cols-2">
             <div className="field">
-              <label>Tipo</label>
-              <select value={kind} onChange={(e) => setKind(e.target.value as "produto" | "servico")}>
-                <option value="produto">Produto</option>
-                <option value="servico">Serviço</option>
+              <label>Categoria *</label>
+              <select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value as ServiceCategory);
+                  setService("");
+                }}
+              >
+                <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
+                <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
+                <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
               </select>
             </div>
             <div className="field">
-              <label>Data</label>
+              <label>Data *</label>
               <input
                 type="date"
                 value={occurredAt}
@@ -299,24 +324,45 @@ function SaleModal({
             </div>
           </div>
           <div className="field">
-            <label>Descrição *</label>
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              placeholder="Ex: Consultoria mensal, Produto X..."
-            />
+            <label>Serviço *</label>
+            <select value={service} onChange={(e) => setService(e.target.value)} required>
+              <option value="">Selecione um serviço...</option>
+              {groups.map((g) => (
+                <optgroup key={g.group} label={g.group}>
+                  {g.items.map((it) => (
+                    <option key={it} value={it}>
+                      {it}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
           <div className="grid-cols-2">
             <div className="field">
-              <label>Valor (R$) *</label>
+              <label>Quantidade</label>
               <input
                 inputMode="decimal"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={qty}
+                onChange={(e) => setQty(e.target.value)}
+                placeholder="1"
+              />
+            </div>
+            <div className="field">
+              <label>Valor unitário (R$) *</label>
+              <input
+                inputMode="decimal"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
                 required
                 placeholder="0,00"
               />
+            </div>
+          </div>
+          <div className="grid-cols-2">
+            <div className="field">
+              <label>Total</label>
+              <input value={fmtBRL(total)} readOnly />
             </div>
             <div className="field">
               <label>Status</label>
@@ -331,7 +377,7 @@ function SaleModal({
               Cancelar
             </button>
             <button type="submit" className="button button--primary" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar lançamento"}
+              {loading ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>

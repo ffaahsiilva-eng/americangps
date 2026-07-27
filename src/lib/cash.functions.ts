@@ -69,7 +69,7 @@ export const getMonthlyClosing = createServerFn({ method: "POST" })
     const lastDay = new Date(y, m, 0).getDate();
     const to = `${data.month}-${String(lastDay).padStart(2, "0")}`;
 
-    const [{ data: client, error: cErr }, { data: rows, error: sErr }] = await Promise.all([
+    const [{ data: client, error: cErr }, { data: rows, error: sErr }, { data: company }, { data: invoiceNumber, error: invErr }] = await Promise.all([
       context.supabase
         .from("clients")
         .select("id, name, email, phone")
@@ -82,9 +82,19 @@ export const getMonthlyClosing = createServerFn({ method: "POST" })
         .gte("occurred_at", from)
         .lte("occurred_at", to)
         .order("occurred_at", { ascending: true }),
+      context.supabase
+        .from("company_settings")
+        .select("name, cnpj, address, phone, email")
+        .eq("owner_id", context.userId)
+        .maybeSingle(),
+      context.supabase.rpc("get_or_create_closing", {
+        _client_id: data.clientId,
+        _month: data.month,
+      }),
     ]);
     if (cErr) throw new Error(cErr.message);
     if (sErr) throw new Error(sErr.message);
+    if (invErr) throw new Error(invErr.message);
     if (!client) throw new Error("Cliente não encontrado");
 
     const items = rows ?? [];
@@ -97,6 +107,8 @@ export const getMonthlyClosing = createServerFn({ method: "POST" })
     }
     return {
       client,
+      company: company ?? null,
+      invoiceNumber: (invoiceNumber as number | null) ?? 0,
       month: data.month,
       from,
       to,

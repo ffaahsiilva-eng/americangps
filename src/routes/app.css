@@ -99,6 +99,9 @@
 .chip--aberto { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
 .chip--produto { background: rgba(255,255,255,.06); color: #f3f3f1; }
 .chip--servico { background: rgba(223,193,154,.1); color: #dfc19a; }
+.chip--instalacao { background: rgba(120,180,255,.12); color: #a8c8ff; }
+.chip--desinstalacao { background: rgba(255,150,120,.12); color: #ffb090; }
+.chip--manutencao { background: rgba(180,255,180,.1); color: #a8e0a8; }
 
 .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 .row--between { justify-content: space-between; }
@@ -198,10 +201,12 @@
   max-width: 800px; margin: 0 auto;
 }
 .invoice__header {
-  display: flex; justify-content: space-between; align-items: flex-start;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
   border-bottom: 2px solid #111; padding-bottom: 20px; margin-bottom: 30px;
 }
-.invoice__brand { text-transform: uppercase; letter-spacing: .2em; font-size: .9rem; }
+.invoice__brandBlock { display: flex; gap: 16px; align-items: center; }
+.invoice__logo { width: 84px; height: 84px; object-fit: contain; }
+.invoice__brand { text-transform: uppercase; letter-spacing: .18em; font-size: 1rem; font-weight: 600; }
 .invoice__title {
   font-size: 2.2rem; font-weight: 300; letter-spacing: -.03em;
   text-transform: uppercase; margin: 0;
