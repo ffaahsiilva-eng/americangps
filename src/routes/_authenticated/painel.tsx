@@ -10,6 +10,12 @@ import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
 import { sanitizeWhatsappPhone, type ReceiptItem } from "@/lib/receipt-print";
 import type { ServiceCategory } from "@/lib/service-catalog";
 import { NoteCard } from "@/components/note-card";
+import {
+  buildMonthlyReportPdfBlob,
+  downloadBlob,
+  type ReportClient,
+} from "@/lib/monthly-report";
+
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
