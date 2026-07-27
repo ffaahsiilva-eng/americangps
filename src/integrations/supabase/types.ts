@@ -112,6 +112,42 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_items: {
+        Row: {
+          category: string
+          created_at: string
+          group_name: string
+          id: string
+          name: string
+          owner_id: string
+          price: number | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          group_name?: string
+          id?: string
+          name: string
+          owner_id: string
+          price?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          group_name?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          price?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sale_notes: {
         Row: {
           client_id: string
