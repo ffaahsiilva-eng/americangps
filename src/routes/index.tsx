@@ -214,11 +214,6 @@ function LandingPage() {
               </ul>
             </article>
           </div>
-          <div className="comparison-block__cta">
-            <Link className="button button--comparison" to="/auth">
-              Acessar o Painel
-            </Link>
-          </div>
         </div>
       </section>
 
