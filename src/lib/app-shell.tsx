@@ -80,6 +80,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/clientes" className={linkClass("/clientes")}>
             Clientes
           </Link>
+          <Link to="/estoque" className={linkClass("/estoque")}>
+            Estoque
+          </Link>
           <Link to="/empresa" className={linkClass("/empresa")}>
             Empresa
           </Link>
@@ -104,6 +107,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
         <Link to="/clientes" className={linkClass("/clientes")} onClick={() => setMenuOpen(false)}>
           Clientes
+        </Link>
+        <Link to="/estoque" className={linkClass("/estoque")} onClick={() => setMenuOpen(false)}>
+          Estoque
         </Link>
         <Link to="/empresa" className={linkClass("/empresa")} onClick={() => setMenuOpen(false)}>
           Empresa
