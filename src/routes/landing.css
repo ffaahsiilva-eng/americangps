@@ -96,6 +96,8 @@ a.button--primary, .button--primary {
   width: clamp(220px, 26vw, 380px); flex-shrink: 0;
   position: relative; overflow: hidden; border-radius: 50%;
   isolation: isolate;
+  animation: heroFloat 6s ease-in-out infinite;
+  will-change: transform;
 }
 .hero__brand img, .hero__brand video {
   width: 100%; height: auto; display: block;
@@ -116,6 +118,10 @@ a.button--primary, .button--primary {
 @keyframes heroShine {
   0% { transform: translateX(-120%); }
   35%, 100% { transform: translateX(120%); }
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
 }
 
 .hero__title {
