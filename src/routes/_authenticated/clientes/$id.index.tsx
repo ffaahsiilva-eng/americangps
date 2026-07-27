@@ -63,6 +63,7 @@ function ClientDetail() {
       amount: number;
       occurred_at: string;
       paid: boolean;
+      payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
     }>) => {
       for (const it of items) {
         await createSaleFn({ data: { ...it, client_id: id } });
