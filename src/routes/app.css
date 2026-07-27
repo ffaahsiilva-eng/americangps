@@ -99,6 +99,9 @@
 .chip--aberto { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
 .chip--produto { background: rgba(255,255,255,.06); color: #f3f3f1; }
 .chip--servico { background: rgba(223,193,154,.1); color: #dfc19a; }
+.chip--instalacao { background: rgba(120,180,255,.12); color: #a8c8ff; }
+.chip--desinstalacao { background: rgba(255,150,120,.12); color: #ffb090; }
+.chip--manutencao { background: rgba(180,255,180,.1); color: #a8e0a8; }
 
 .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 .row--between { justify-content: space-between; }
