@@ -95,7 +95,7 @@ a.button--primary, .button--primary {
   margin: 0 42px 0 0; padding: 0;
   width: clamp(180px, 22vw, 320px); flex-shrink: 0;
 }
-.hero__brand img {
+.hero__brand img, .hero__brand video {
   width: 100%; height: auto; display: block;
 }
 .hero__title {
