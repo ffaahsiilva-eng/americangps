@@ -395,17 +395,17 @@ function SaleModal({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sales")
-        .select("description, amount, created_at")
+        .select("description, amount, occurred_at, created_at")
         .eq("client_id", clientId)
         .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as Array<{ description: string; amount: number; created_at: string }>;
+      return (data ?? []) as Array<{ description: string; amount: number; occurred_at: string; created_at: string }>;
     },
   });
 
   const lastPriceByName = useMemo(() => {
-    const m = new Map<string, number>();
+    const m = new Map<string, { unit: number; amount: number; qty: number; date: string }>();
     for (const s of lastSales.data ?? []) {
       const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
       const name = (match?.[1] ?? s.description).trim();
@@ -413,7 +413,7 @@ function SaleModal({
       if (!name || !qty) continue;
       if (m.has(name)) continue; // first (most recent) wins
       const unit = Number(s.amount) / qty;
-      if (Number.isFinite(unit)) m.set(name, unit);
+      if (Number.isFinite(unit)) m.set(name, { unit, amount: Number(s.amount), qty, date: s.occurred_at });
     }
     return m;
   }, [lastSales.data]);
@@ -549,11 +549,12 @@ function SaleModal({
                   value={draft.service}
                   onChange={(e) => {
                     const name = e.target.value;
-                    const price = lastPriceByName.get(name) ?? priceByName.get(name);
+                    const hist = lastPriceByName.get(name);
+                    const price = hist ? hist.unit : priceByName.get(name);
                     setDraft({
                       ...draft,
                       service: name,
-                      unit: price != null ? String(price.toFixed(2)).replace(".", ",") : draft.unit,
+                      unit: price != null ? price.toFixed(2).replace(".", ",") : draft.unit,
                     });
                   }}
                 >
@@ -583,14 +584,20 @@ function SaleModal({
                     const histPrice = lastPriceByName.get(draft.service);
                     const stockPrice = priceByName.get(draft.service);
                     const currentUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
-                    const fromHistory = histPrice != null && Math.abs(currentUnit - histPrice) < 0.005;
+                    const fromHistory = histPrice != null && Math.abs(currentUnit - histPrice.unit) < 0.005;
+                    const histDate = histPrice ? new Date(histPrice.date + "T00:00:00").toLocaleDateString("pt-BR") : "";
                     return (
                       <>
-                        <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                        <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                           <span>
                             Valor unit. (R$)
-                            {fromHistory && (
-                              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.7 }}>· histórico</span>
+                            {fromHistory && histPrice && (
+                              <span
+                                style={{ marginLeft: 6, fontSize: 10, opacity: 0.75 }}
+                                title={`Última venda em ${histDate} · ${fmtBRL(histPrice.amount)}${histPrice.qty > 1 ? ` (${histPrice.qty} × ${fmtBRL(histPrice.unit)})` : ""}`}
+                              >
+                                · histórico {histDate} · {fmtBRL(histPrice.unit)}
+                              </span>
                             )}
                           </span>
                           {draft.service && (histPrice != null || stockPrice != null) && (
