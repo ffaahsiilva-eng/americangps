@@ -485,7 +485,8 @@ body.landing-body {
   .hero__video { display: none; }
   .hero__video--mobile { display: block; object-position: center center; transform: scale(1.08); }
   .hero { min-height: 100svh; padding: 18px 16px 0; }
-  .hero__grid { padding-top: 28px; text-align: center; }
+  .hero__grid { padding-top: 28px; text-align: center; gap: 24px; }
+  .hero__brand { width: min(200px, 52vw); }
   .hero__title {
     margin: 18px auto 0; font-size: clamp(2.2rem, 8.8vw, 3.05rem);
     line-height: .94; text-align: center;
