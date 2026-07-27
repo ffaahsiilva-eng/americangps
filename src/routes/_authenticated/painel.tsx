@@ -2,18 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
+import { AppShell, fmtBRL } from "@/lib/app-shell";
 import { getCashSummary } from "@/lib/cash.functions";
 import { listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
-import {
-  openPrintReceipt,
-  openWhatsappReceipt,
-  sanitizeWhatsappPhone,
-  type ReceiptItem,
-} from "@/lib/receipt-print";
+import { sanitizeWhatsappPhone, type ReceiptItem } from "@/lib/receipt-print";
 import type { ServiceCategory } from "@/lib/service-catalog";
+import { NoteCard } from "@/components/note-card";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
