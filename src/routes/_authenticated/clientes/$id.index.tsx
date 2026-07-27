@@ -339,6 +339,10 @@ function SaleModal({
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
   const [showPayment, setShowPayment] = useState(false);
+  const [showNewItem, setShowNewItem] = useState(false);
+  const [newItem, setNewItem] = useState({ group_name: "", name: "", price: "" });
+  const [savingItem, setSavingItem] = useState(false);
+  const [itemError, setItemError] = useState<string | null>(null);
 
   const getCompanyFn = useServerFn(getCompanySettings);
   const company = useQuery({
@@ -346,7 +350,74 @@ function SaleModal({
     queryFn: () => getCompanyFn({}),
   });
 
-  const groups = SERVICE_CATALOG[draft.category];
+  const inventory = useQuery({
+    queryKey: ["inventory-items"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("inventory_items")
+        .select("id, category, group_name, name, price, sort_order")
+        .order("category")
+        .order("sort_order")
+        .order("name");
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string; category: ServiceCategory; group_name: string;
+        name: string; price: number | null; sort_order: number;
+      }>;
+    },
+  });
+
+  const groups = useMemo(() => {
+    const invRows = (inventory.data ?? []).filter((r) => r.category === draft.category);
+    if (invRows.length > 0) {
+      const map = new Map<string, { group: string; items: string[] }>();
+      for (const r of invRows) {
+        const key = r.group_name || "Outros";
+        if (!map.has(key)) map.set(key, { group: key, items: [] });
+        map.get(key)!.items.push(r.name);
+      }
+      return Array.from(map.values());
+    }
+    return SERVICE_CATALOG[draft.category];
+  }, [inventory.data, draft.category]);
+
+  const priceByName = useMemo(() => {
+    const m = new Map<string, number>();
+    (inventory.data ?? []).forEach((r) => { if (r.price != null) m.set(r.name, Number(r.price)); });
+    return m;
+  }, [inventory.data]);
+
+  async function saveNewItem() {
+    const name = newItem.name.trim();
+    if (!name) { setItemError("Informe o nome do item."); return; }
+    setItemError(null);
+    setSavingItem(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData.user?.id;
+    if (!uid) { setItemError("Sessão expirada."); setSavingItem(false); return; }
+    const priceValue = newItem.price.trim() === "" ? null : Number(newItem.price.replace(",", "."));
+    if (priceValue !== null && (!Number.isFinite(priceValue) || priceValue < 0)) {
+      setItemError("Preço inválido."); setSavingItem(false); return;
+    }
+    const { error } = await supabase.from("inventory_items").insert({
+      owner_id: uid,
+      category: draft.category,
+      group_name: newItem.group_name.trim(),
+      name,
+      price: priceValue,
+      sort_order: Date.now(),
+    });
+    if (error) { setItemError(error.message); setSavingItem(false); return; }
+    await inventory.refetch();
+    setDraft({
+      ...draft,
+      service: name,
+      unit: priceValue != null ? String(priceValue).replace(".", ",") : draft.unit,
+    });
+    setNewItem({ group_name: "", name: "", price: "" });
+    setShowNewItem(false);
+    setSavingItem(false);
+  }
   const draftQty = parseFloat(draft.qty.replace(",", ".")) || 0;
   const draftUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
   const draftTotal = draftQty * draftUnit;
