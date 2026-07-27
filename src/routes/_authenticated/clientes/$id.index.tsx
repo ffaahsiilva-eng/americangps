@@ -63,6 +63,7 @@ function ClientDetail() {
       amount: number;
       occurred_at: string;
       paid: boolean;
+      payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
     }>) => {
       for (const it of items) {
         await createSaleFn({ data: { ...it, client_id: id } });
@@ -293,6 +294,7 @@ function SaleModal({
     amount: number;
     occurred_at: string;
     paid: boolean;
+    payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
   }>) => void;
   loading: boolean;
   error?: string;
@@ -300,7 +302,7 @@ function SaleModal({
   const [draft, setDraft] = useState<ItemDraft>(emptyDraft());
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
-  const [paid, setPaid] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   const getCompanyFn = useServerFn(getCompanySettings);
   const company = useQuery({
@@ -336,14 +338,16 @@ function SaleModal({
     setItems((prev) => prev.filter((it) => it.key !== key));
   }
 
-  function finalize() {
+  function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
+    const paid = method !== null;
     const payload = items.map((it) => ({
       kind: it.category,
       description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
       amount: it.total,
       occurred_at: occurredAt,
       paid,
+      payment_method: method,
     }));
     onSubmit(payload);
   }
@@ -495,18 +499,11 @@ function SaleModal({
                 <label>Data</label>
                 <input type="date" value={occurredAt} onChange={(e) => setOccurredAt(e.target.value)} />
               </div>
-              <div className="field" style={{ marginBottom: 0 }}>
-                <label>Status</label>
-                <select value={paid ? "1" : "0"} onChange={(e) => setPaid(e.target.value === "1")}>
-                  <option value="0">Em aberto</option>
-                  <option value="1">Pago</option>
-                </select>
-              </div>
             </div>
             <button
               type="button"
               className="button button--primary pos-finalize"
-              onClick={finalize}
+              onClick={() => setShowPayment(true)}
               disabled={loading || items.length === 0}
             >
               {loading ? "Salvando…" : `Finalizar · ${fmtBRL(total)}`}
@@ -561,6 +558,52 @@ function SaleModal({
           </div>
         </aside>
       </div>
+
+      {showPayment && (
+        <div className="pay-overlay" onClick={() => !loading && setShowPayment(false)}>
+          <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pay-modal__head">
+              <div>
+                <div className="pos-eyebrow">Forma de pagamento</div>
+                <h3 className="pay-modal__title">Como foi pago?</h3>
+                <div className="pay-modal__sub">Total {fmtBRL(total)}</div>
+              </div>
+              <button className="button--ghost button--sm" onClick={() => setShowPayment(false)} disabled={loading}>
+                Cancelar
+              </button>
+            </div>
+            <div className="pay-grid">
+              {[
+                { key: "pix", label: "PIX", icon: "◈" },
+                { key: "credito", label: "Crédito", icon: "▭" },
+                { key: "debito", label: "Débito", icon: "▯" },
+                { key: "dinheiro", label: "Dinheiro", icon: "$" },
+                { key: "transferencia", label: "Transferência", icon: "⇄" },
+              ].map((m) => (
+                <button
+                  key={m.key}
+                  type="button"
+                  className="pay-option"
+                  disabled={loading}
+                  onClick={() => confirmPayment(m.key as "pix" | "credito" | "debito" | "dinheiro" | "transferencia")}
+                >
+                  <span className="pay-option__icon">{m.icon}</span>
+                  <span className="pay-option__label">{m.label}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="button--ghost pay-open-later"
+              disabled={loading}
+              onClick={() => confirmPayment(null)}
+            >
+              Deixar em aberto
+            </button>
+            {loading && <div className="pay-loading">Salvando…</div>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
