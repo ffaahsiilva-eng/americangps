@@ -1,19 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
-const STREAMS = [
-  { name: "181.FM The Beat (Hip Hop / R&B)", url: "https://listen.181fm.com/181-beat_128k.mp3" },
-  { name: "90s90s Hip Hop", url: "https://streams.90s90s.de/hiphop/mp3-192/" },
-  { name: "Laut.FM Hip Hop", url: "https://stream.laut.fm/hiphop" },
-  { name: "Laut.FM Old School Hip Hop", url: "https://stream.laut.fm/oldschool-hip-hop" },
-  { name: "Laut.FM Hip Hop Classics", url: "https://stream.laut.fm/hip-hop-classics" },
-];
-
+const STREAM = {
+  name: "181.FM The Beat (Hip Hop / R&B)",
+  url: "https://listen.181fm.com/181-beat_128k.mp3",
+};
 
 export function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
-  const [streamIdx, setStreamIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -21,11 +16,10 @@ export function RadioPlayer() {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
-  // Autoplay on load — try immediately, fall back to first user gesture.
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
-    a.src = STREAMS[0].url + "?t=" + Date.now();
+    a.src = STREAM.url + "?t=" + Date.now();
     const tryPlay = async () => {
       try {
         await a.play();
@@ -49,7 +43,6 @@ export function RadioPlayer() {
     });
   }, []);
 
-
   const toggle = async () => {
     const a = audioRef.current;
     if (!a) return;
@@ -59,7 +52,7 @@ export function RadioPlayer() {
     } else {
       try {
         setLoading(true);
-        a.src = STREAMS[streamIdx].url + "?t=" + Date.now();
+        a.src = STREAM.url + "?t=" + Date.now();
         await a.play();
         setPlaying(true);
       } catch (e) {
@@ -67,14 +60,6 @@ export function RadioPlayer() {
       } finally {
         setLoading(false);
       }
-    }
-  };
-
-  const switchStream = (idx: number) => {
-    setStreamIdx(idx);
-    if (playing && audioRef.current) {
-      audioRef.current.src = STREAMS[idx].url + "?t=" + Date.now();
-      audioRef.current.play().catch(() => {});
     }
   };
 
@@ -104,14 +89,14 @@ export function RadioPlayer() {
         <div className="radio-player__meta">
           <div className="radio-player__label">
             <span className={`radio-player__dot ${playing ? "radio-player__dot--on" : ""}`} />
-            OLD SCHOOL HIP HOP
+            HIP HOP / R&B
           </div>
-          <div className="radio-player__station">{STREAMS[streamIdx].name}</div>
+          <div className="radio-player__station">{STREAM.name}</div>
         </div>
         <button
           className="radio-player__expand"
           onClick={() => setExpanded((v) => !v)}
-          aria-label="Expandir controles"
+          aria-label="Volume"
         >
           {expanded ? "−" : "+"}
         </button>
@@ -128,20 +113,6 @@ export function RadioPlayer() {
                 onChange={(e) => setVolume(parseFloat(e.target.value))}
               />
             </label>
-            <div className="radio-player__row">
-              <span>Estação</span>
-              <div className="radio-player__stations">
-                {STREAMS.map((s, i) => (
-                  <button
-                    key={s.url}
-                    className={`radio-player__station-btn ${i === streamIdx ? "is-active" : ""}`}
-                    onClick={() => switchStream(i)}
-                  >
-                    {s.name}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>
