@@ -56,13 +56,17 @@ function ClientDetail() {
   });
 
   const createMut = useMutation({
-    mutationFn: (data: {
+    mutationFn: async (items: Array<{
       kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
       description: string;
       amount: number;
       occurred_at: string;
       paid: boolean;
-    }) => createSaleFn({ data: { ...data, client_id: id } }),
+    }>) => {
+      for (const it of items) {
+        await createSaleFn({ data: { ...it, client_id: id } });
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["cash-summary"] });
