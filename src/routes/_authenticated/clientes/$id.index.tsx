@@ -249,13 +249,6 @@ function ClientDetail() {
   );
 }
 
-function SaleModal({
-  onClose,
-  onSubmit,
-  loading,
-  error,
-}: {
-  onClose: () => void;
 type ItemDraft = {
   key: string;
   category: ServiceCategory;
