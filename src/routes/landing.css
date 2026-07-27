@@ -127,12 +127,13 @@ a.button--primary, .button--primary {
 /* About */
 .about-block { padding: 88px 48px; }
 .about-block__inner {
-  display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, 480px);
-  align-items: center; gap: 72px;
+  display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(360px, 520px);
+  align-items: center; gap: 56px;
   width: min(100%, 1240px); margin: 0 auto;
 }
-.about-block__media { position: relative; overflow: hidden; border-radius: 18px; }
-.about-block__media img {
+.about-block__media { position: relative; overflow: hidden; border-radius: 18px; max-width: 420px; justify-self: center; }
+.about-block__media img,
+.about-block__media video {
   width: 100%; height: auto; object-fit: cover;
   animation: aboutFloat 8s ease-in-out infinite;
 }
