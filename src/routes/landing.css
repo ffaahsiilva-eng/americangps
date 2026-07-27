@@ -80,7 +80,7 @@ a.button--primary, .button--primary {
 }
 .hero--plain { background: #ffffff; }
 .hero--plain::after {
-  content: ""; position: absolute; inset: auto 0 0 0; height: 220px;
+  content: ""; position: absolute; inset: auto 0 0 0; height: 420px;
   background: linear-gradient(180deg, #ffffff 0%, #000000 100%);
   z-index: 0; pointer-events: none;
 }
