@@ -410,41 +410,43 @@ function SaleModal({
                   ))}
                 </select>
               </div>
-              <div className="field">
-                <label>Qtd</label>
-                <input
-                  inputMode="decimal"
-                  value={draft.qty}
-                  onChange={(e) => setDraft({ ...draft, qty: e.target.value })}
-                />
+              <div className="pos-entry__row2">
+                <div className="field">
+                  <label>Qtd</label>
+                  <input
+                    inputMode="decimal"
+                    value={draft.qty}
+                    onChange={(e) => setDraft({ ...draft, qty: e.target.value })}
+                  />
+                </div>
+                <div className="field">
+                  <label>Valor unit. (R$)</label>
+                  <input
+                    inputMode="decimal"
+                    value={draft.unit}
+                    onChange={(e) => setDraft({ ...draft, unit: e.target.value })}
+                    placeholder="0,00"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addItem();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="field pos-entry__subtotal">
+                  <label>Subtotal</label>
+                  <div className="pos-entry__subtotal-value">{fmtBRL(draftTotal)}</div>
+                </div>
+                <button
+                  type="button"
+                  className="button button--primary pos-entry__add"
+                  onClick={addItem}
+                  disabled={!canAdd}
+                >
+                  + Adicionar item
+                </button>
               </div>
-              <div className="field">
-                <label>Valor unit. (R$)</label>
-                <input
-                  inputMode="decimal"
-                  value={draft.unit}
-                  onChange={(e) => setDraft({ ...draft, unit: e.target.value })}
-                  placeholder="0,00"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addItem();
-                    }
-                  }}
-                />
-              </div>
-              <div className="field pos-entry__subtotal">
-                <label>Subtotal</label>
-                <div className="pos-entry__subtotal-value">{fmtBRL(draftTotal)}</div>
-              </div>
-              <button
-                type="button"
-                className="button button--primary pos-entry__add"
-                onClick={addItem}
-                disabled={!canAdd}
-              >
-                + Adicionar item
-              </button>
             </div>
           </div>
 
