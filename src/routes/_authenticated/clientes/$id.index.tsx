@@ -319,12 +319,14 @@ function emptyDraft(): ItemDraft {
 }
 
 function SaleModal({
+  clientId,
   clientName,
   onClose,
   onSubmit,
   loading,
   error,
 }: {
+  clientId: string;
   clientName: string;
   onClose: () => void;
   onSubmit: (data: {
