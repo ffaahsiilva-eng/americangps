@@ -745,8 +745,12 @@ html { -webkit-text-size-adjust: 100%; }
 }
 .note-card__desc { color: rgba(255,255,255,.82); min-width: 0; overflow-wrap: anywhere; }
 .note-card__amount { font-variant-numeric: tabular-nums; color: rgba(255,255,255,.9); }
+.note-card__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.08); }
+.note-card__actions button:disabled { opacity: .4; cursor: not-allowed; }
 @media (max-width: 480px) {
   .note-card { padding: 14px 14px; }
   .note-card__items li { grid-template-columns: auto minmax(0,1fr); }
   .note-card__amount { grid-column: 2 / -1; text-align: right; font-weight: 500; }
+  .note-card__actions button { flex: 1 1 auto; }
 }
+
