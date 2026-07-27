@@ -302,7 +302,7 @@ export async function buildReceiptPdfBlob(ctx: ReceiptContext): Promise<Blob> {
 
   for (const [cat, list] of groups) {
     ensureSpace(30);
-    doc.setFillColor(240);
+    doc.setFillColor(240, 240, 240);
     doc.rect(margin, y - 10, pageW - margin * 2, 16, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
