@@ -383,17 +383,16 @@ function SaleModal({
 
   function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
-    const paid = method !== null;
-    const payload = items.map((it) => ({
-      kind: it.category,
-      description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
-      amount: it.total,
-      occurred_at: occurredAt,
-      paid,
-      payment_method: method,
+    const payload: ReceiptItem[] = items.map((it) => ({
+      category: it.category,
+      service: it.service,
+      qty: it.qty,
+      unit: it.unit,
+      total: it.total,
     }));
-    onSubmit(payload);
+    onSubmit({ items: payload, method, dateStr: occurredAt });
   }
+
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
