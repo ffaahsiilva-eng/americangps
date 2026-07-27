@@ -33,7 +33,7 @@ body.landing-body {
   transition: transform 180ms ease, background 180ms ease, border 180ms ease, box-shadow 180ms ease;
 }
 .button:hover, .button:focus { transform: translateY(-1px); }
-.button--primary {
+a.button--primary, .button--primary {
   min-height: 60px; padding: 0 38px;
   background: linear-gradient(180deg, #202020 0%, #050505 100%);
   color: #fff; border: 1px solid rgba(255,255,255,.18);
