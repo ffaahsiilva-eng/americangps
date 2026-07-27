@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
+import { AppShell, fmtBRL } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { createSaleNote, listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
@@ -14,6 +14,7 @@ import {
   sanitizeWhatsappPhone,
   type ReceiptItem,
 } from "@/lib/receipt-print";
+import { NoteCard } from "@/components/note-card";
 
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
@@ -232,50 +233,14 @@ function ClientDetail() {
               };
               const canWhats = !!sanitizeWhatsappPhone(client.data?.phone);
               return (
-                <div key={n.id} className="note-card">
-                  <div className="note-card__head">
-                    <div>
-                      <div className="note-card__num">Nota Nº {noteStr}</div>
-                      <div className="note-card__meta">
-                        {fmtDate(n.occurred_at)} · {method}
-                      </div>
-                    </div>
-                    <div className="note-card__totals">
-                      <span className={`chip chip--${n.paid ? "pago" : "aberto"}`}>
-                        {n.paid ? "Pago" : "Em aberto"}
-                      </span>
-                      <div className="note-card__total">{fmtBRL(Number(n.total))}</div>
-                    </div>
-                  </div>
-                  <ul className="note-card__items">
-                    {(n.sales ?? []).map((it) => (
-                      <li key={it.id}>
-                        <span className={`chip chip--${it.kind}`}>{it.kind}</span>
-                        <span className="note-card__desc">{it.description}</span>
-                        <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="note-card__actions">
-                    <button
-                      type="button"
-                      className="button--ghost button--sm"
-                      onClick={() => openPrintReceipt(ctx)}
-                      title="Imprimir ou salvar em PDF"
-                    >
-                      🖨️ PDF / Imprimir
-                    </button>
-                    <button
-                      type="button"
-                      className="button--ghost button--sm"
-                      onClick={() => openWhatsappReceipt(ctx)}
-                      disabled={!canWhats}
-                      title={canWhats ? "Reenviar para WhatsApp" : "Cliente sem telefone cadastrado"}
-                    >
-                      💬 WhatsApp
-                    </button>
-                  </div>
-                </div>
+                <NoteCard
+                  key={n.id}
+                  note={n}
+                  method={method}
+                  noteStr={noteStr}
+                  ctx={ctx}
+                  canWhats={canWhats}
+                />
               );
             })}
           </div>
