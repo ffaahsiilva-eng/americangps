@@ -294,6 +294,7 @@ function SaleModal({
     amount: number;
     occurred_at: string;
     paid: boolean;
+    payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
   }>) => void;
   loading: boolean;
   error?: string;
@@ -301,7 +302,7 @@ function SaleModal({
   const [draft, setDraft] = useState<ItemDraft>(emptyDraft());
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
-  const [paid, setPaid] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   const getCompanyFn = useServerFn(getCompanySettings);
   const company = useQuery({
