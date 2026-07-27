@@ -338,14 +338,16 @@ function SaleModal({
     setItems((prev) => prev.filter((it) => it.key !== key));
   }
 
-  function finalize() {
+  function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
+    const paid = method !== null;
     const payload = items.map((it) => ({
       kind: it.category,
       description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
       amount: it.total,
       occurred_at: occurredAt,
       paid,
+      payment_method: method,
     }));
     onSubmit(payload);
   }
