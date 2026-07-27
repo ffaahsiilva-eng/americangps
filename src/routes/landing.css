@@ -304,8 +304,6 @@ a.button--primary, .button--primary {
 }
 
 @media (max-width: 720px) {
-  .hero__video { display: none; }
-  .hero__video--mobile { display: block; object-position: center center; transform: scale(1.08); }
   .hero { min-height: 100svh; padding: 18px 16px 0; }
   .hero__grid { padding-top: 28px; text-align: center; gap: 24px; }
   .hero__brand { width: min(200px, 52vw); }
@@ -339,20 +337,4 @@ a.button--primary, .button--primary {
   .quote-panel { padding: 30px 22px 28px; }
   .quote-panel::before, .quote-panel::after { width: 72px; height: 72px; }
   .quote-text { font-size: clamp(1.9rem, 9vw, 2.8rem); }
-  .deliverables-block { padding: 56px 16px 72px; }
-  .deliverables-grid { grid-template-columns: 1fr; }
-  .deliverable-card--offset { margin-top: 0; }
-  .deliverables-block__title { font-size: clamp(2.5rem, 12vw, 3.8rem); }
-  .offer-block { padding: 68px 16px 76px; }
-  .offer-card { padding: 30px 20px; }
-  .offer-title { font-size: clamp(1.2rem, 4.6vw, 1.5rem); white-space: normal; }
-  .button--offer { width: min(100%, 320px); min-width: 0; min-height: 58px; }
-  .guarantee-block { padding: 0 16px 76px; }
-  .guarantee-card { text-align: center; gap: 28px; padding: 28px 22px; justify-items: center; }
-  .guarantee-ring { width: 142px; height: 142px; }
-  .guarantee-seven__front, .guarantee-seven__back { font-size: 4.4rem; }
-  .faq-block { padding: 0 16px 60px; }
-  .faq-block__title { font-size: clamp(1.25rem, 5.4vw, 2rem); white-space: normal; }
-  .faq-item__trigger { font-size: 1rem; }
-  .faq-item__answer p { font-size: .94rem; }
 }
