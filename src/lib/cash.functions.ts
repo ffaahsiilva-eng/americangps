@@ -53,6 +53,68 @@ export const getCashSummary = createServerFn({ method: "POST" })
     };
   });
 
+export const getCashSeries = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { range: "week" | "month" }) =>
+    z.object({ range: z.enum(["week", "month"]) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { from, to } = rangeFor(data.range);
+    const { data: rows, error } = await context.supabase
+      .from("sales")
+      .select("kind, amount, paid, payment_method, occurred_at")
+      .gte("occurred_at", from)
+      .lte("occurred_at", to);
+    if (error) throw new Error(error.message);
+
+    const start = new Date(from + "T00:00:00");
+    const end = new Date(to + "T00:00:00");
+    const days: { date: string; label: string; total: number; pago: number; aberto: number }[] = [];
+    const idx = new Map<string, number>();
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const iso = d.toISOString().slice(0, 10);
+      const label = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+      idx.set(iso, days.length);
+      days.push({ date: iso, label, total: 0, pago: 0, aberto: 0 });
+    }
+
+    const byCategory: Record<string, number> = {
+      instalacao: 0,
+      desinstalacao: 0,
+      manutencao: 0,
+      produto: 0,
+      servico: 0,
+    };
+    const byMethod: Record<string, number> = {
+      pix: 0,
+      credito: 0,
+      debito: 0,
+      dinheiro: 0,
+      transferencia: 0,
+      aberto: 0,
+    };
+
+    for (const r of rows ?? []) {
+      const a = Number(r.amount);
+      const i = idx.get(r.occurred_at);
+      if (i !== undefined) {
+        days[i].total += a;
+        if (r.paid) days[i].pago += a;
+        else days[i].aberto += a;
+      }
+      if (byCategory[r.kind] !== undefined) byCategory[r.kind] += a;
+      if (r.paid && r.payment_method && byMethod[r.payment_method] !== undefined) {
+        byMethod[r.payment_method] += a;
+      } else if (!r.paid) {
+        byMethod.aberto += a;
+      }
+    }
+
+    return { from, to, days, byCategory, byMethod };
+  });
+
+
+
 export const getMonthlyClosing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { clientId: string; month: string }) =>
