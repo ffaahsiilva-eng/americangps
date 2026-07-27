@@ -2,19 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { AppShell, fmtBRL, fmtDate } from "@/lib/app-shell";
+import { AppShell, fmtBRL } from "@/lib/app-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { createSaleNote, listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
-import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
+import { SERVICE_CATALOG, type ServiceCategory } from "@/lib/service-catalog";
 import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
-import {
-  openPrintReceipt,
-  openWhatsappReceipt,
-  sanitizeWhatsappPhone,
-  type ReceiptItem,
-} from "@/lib/receipt-print";
-
+import { sanitizeWhatsappPhone, type ReceiptItem } from "@/lib/receipt-print";
 import { NoteCard } from "@/components/note-card";
 
 
