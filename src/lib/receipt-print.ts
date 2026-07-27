@@ -153,7 +153,7 @@ export function buildReceiptHTML(ctx: ReceiptContext): string {
       <h1>${escapeHtml(empresa)}</h1>
       ${ctx.company.cnpj ? `<p>CNPJ: ${escapeHtml(ctx.company.cnpj)}</p>` : ""}
       ${ctx.company.address ? `<p>${escapeHtml(ctx.company.address)}</p>` : ""}
-      ${ctx.company.phone || ctx.company.email ? `<p>${[ctx.company.phone, ctx.company.email].filter(Boolean).map(escapeHtml).join(" · ")}</p>` : ""}
+      ${ctx.company.phone || ctx.company.email ? `<p>${[ctx.company.phone, ctx.company.email].filter((v): v is string => !!v).map(escapeHtml).join(" · ")}</p>` : ""}
     </div>
   </header>
   <div class="meta">
