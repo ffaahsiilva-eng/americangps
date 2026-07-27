@@ -584,14 +584,20 @@ function SaleModal({
                     const histPrice = lastPriceByName.get(draft.service);
                     const stockPrice = priceByName.get(draft.service);
                     const currentUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
-                    const fromHistory = histPrice != null && Math.abs(currentUnit - histPrice) < 0.005;
+                    const fromHistory = histPrice != null && Math.abs(currentUnit - histPrice.unit) < 0.005;
+                    const histDate = histPrice ? new Date(histPrice.date + "T00:00:00").toLocaleDateString("pt-BR") : "";
                     return (
                       <>
-                        <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                        <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                           <span>
                             Valor unit. (R$)
-                            {fromHistory && (
-                              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.7 }}>· histórico</span>
+                            {fromHistory && histPrice && (
+                              <span
+                                style={{ marginLeft: 6, fontSize: 10, opacity: 0.75 }}
+                                title={`Última venda em ${histDate} · ${fmtBRL(histPrice.amount)}${histPrice.qty > 1 ? ` (${histPrice.qty} × ${fmtBRL(histPrice.unit)})` : ""}`}
+                              >
+                                · histórico {histDate} · {fmtBRL(histPrice.unit)}
+                              </span>
                             )}
                           </span>
                           {draft.service && (histPrice != null || stockPrice != null) && (
