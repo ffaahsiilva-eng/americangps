@@ -15,6 +15,7 @@ import {
   type ReceiptItem,
 } from "@/lib/receipt-print";
 import { NoteCard } from "@/components/note-card";
+import { supabase } from "@/integrations/supabase/client";
 
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
@@ -338,6 +339,10 @@ function SaleModal({
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
   const [showPayment, setShowPayment] = useState(false);
+  const [showNewItem, setShowNewItem] = useState(false);
+  const [newItem, setNewItem] = useState({ group_name: "", name: "", price: "" });
+  const [savingItem, setSavingItem] = useState(false);
+  const [itemError, setItemError] = useState<string | null>(null);
 
   const getCompanyFn = useServerFn(getCompanySettings);
   const company = useQuery({
@@ -345,7 +350,74 @@ function SaleModal({
     queryFn: () => getCompanyFn({}),
   });
 
-  const groups = SERVICE_CATALOG[draft.category];
+  const inventory = useQuery({
+    queryKey: ["inventory-items"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("inventory_items")
+        .select("id, category, group_name, name, price, sort_order")
+        .order("category")
+        .order("sort_order")
+        .order("name");
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string; category: ServiceCategory; group_name: string;
+        name: string; price: number | null; sort_order: number;
+      }>;
+    },
+  });
+
+  const groups = useMemo(() => {
+    const invRows = (inventory.data ?? []).filter((r) => r.category === draft.category);
+    if (invRows.length > 0) {
+      const map = new Map<string, { group: string; items: string[] }>();
+      for (const r of invRows) {
+        const key = r.group_name || "Outros";
+        if (!map.has(key)) map.set(key, { group: key, items: [] });
+        map.get(key)!.items.push(r.name);
+      }
+      return Array.from(map.values());
+    }
+    return SERVICE_CATALOG[draft.category];
+  }, [inventory.data, draft.category]);
+
+  const priceByName = useMemo(() => {
+    const m = new Map<string, number>();
+    (inventory.data ?? []).forEach((r) => { if (r.price != null) m.set(r.name, Number(r.price)); });
+    return m;
+  }, [inventory.data]);
+
+  async function saveNewItem() {
+    const name = newItem.name.trim();
+    if (!name) { setItemError("Informe o nome do item."); return; }
+    setItemError(null);
+    setSavingItem(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData.user?.id;
+    if (!uid) { setItemError("Sessão expirada."); setSavingItem(false); return; }
+    const priceValue = newItem.price.trim() === "" ? null : Number(newItem.price.replace(",", "."));
+    if (priceValue !== null && (!Number.isFinite(priceValue) || priceValue < 0)) {
+      setItemError("Preço inválido."); setSavingItem(false); return;
+    }
+    const { error } = await supabase.from("inventory_items").insert({
+      owner_id: uid,
+      category: draft.category,
+      group_name: newItem.group_name.trim(),
+      name,
+      price: priceValue,
+      sort_order: Date.now(),
+    });
+    if (error) { setItemError(error.message); setSavingItem(false); return; }
+    await inventory.refetch();
+    setDraft({
+      ...draft,
+      service: name,
+      unit: priceValue != null ? String(priceValue).replace(".", ",") : draft.unit,
+    });
+    setNewItem({ group_name: "", name: "", price: "" });
+    setShowNewItem(false);
+    setSavingItem(false);
+  }
   const draftQty = parseFloat(draft.qty.replace(",", ".")) || 0;
   const draftUnit = parseFloat(draft.unit.replace(",", ".")) || 0;
   const draftTotal = draftQty * draftUnit;
@@ -431,10 +503,28 @@ function SaleModal({
                 </select>
               </div>
               <div className="field pos-entry__service">
-                <label>Serviço</label>
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span>Serviço</span>
+                  <button
+                    type="button"
+                    className="button--ghost button--sm"
+                    onClick={() => { setItemError(null); setShowNewItem(true); }}
+                    style={{ fontSize: 12, padding: "4px 10px" }}
+                  >
+                    + Novo item
+                  </button>
+                </label>
                 <select
                   value={draft.service}
-                  onChange={(e) => setDraft({ ...draft, service: e.target.value })}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    const price = priceByName.get(name);
+                    setDraft({
+                      ...draft,
+                      service: name,
+                      unit: price != null ? String(price).replace(".", ",") : draft.unit,
+                    });
+                  }}
                 >
                   <option value="">Selecione um serviço…</option>
                   {groups.map((g) => (
@@ -660,6 +750,58 @@ function SaleModal({
               Deixar em aberto
             </button>
             {loading && <div className="pay-loading">Salvando…</div>}
+          </div>
+        </div>
+      )}
+
+      {showNewItem && (
+        <div className="pay-overlay" onClick={() => !savingItem && setShowNewItem(false)}>
+          <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pay-modal__head">
+              <div>
+                <div className="pos-eyebrow">Estoque</div>
+                <h3 className="pay-modal__title">Novo item</h3>
+                <div className="pay-modal__sub">Categoria: {CATEGORY_LABEL[draft.category]}</div>
+              </div>
+              <button className="button--ghost button--sm" onClick={() => setShowNewItem(false)} disabled={savingItem}>
+                Cancelar
+              </button>
+            </div>
+            {itemError && <div className="auth-error" style={{ marginBottom: 12 }}>{itemError}</div>}
+            <div className="field">
+              <label>Grupo (opcional)</label>
+              <input
+                value={newItem.group_name}
+                onChange={(e) => setNewItem({ ...newItem, group_name: e.target.value })}
+                placeholder="Ex.: Sighra Light, Complementos..."
+              />
+            </div>
+            <div className="field">
+              <label>Nome do item</label>
+              <input
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                placeholder="Nome do produto, kit ou serviço"
+                autoFocus
+              />
+            </div>
+            <div className="field">
+              <label>Preço sugerido (opcional)</label>
+              <input
+                inputMode="decimal"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+                placeholder="0,00"
+              />
+            </div>
+            <div className="row" style={{ gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
+              <button type="button" className="button--ghost" onClick={() => setShowNewItem(false)} disabled={savingItem}>
+                Cancelar
+              </button>
+              <button type="button" className="button button--primary" onClick={saveNewItem} disabled={savingItem}>
+                {savingItem ? "Salvando…" : "Salvar e usar"}
+              </button>
+            </div>
           </div>
         </div>
       )}
