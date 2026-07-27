@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getMonthlyClosing } from "@/lib/cash.functions";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
 import "../../app.css";
 
 const searchSchema = z.object({
@@ -35,6 +36,14 @@ function fmtDate(iso: string) {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
+
+const KIND_LABEL: Record<string, string> = {
+  produto: "Produto",
+  servico: "Serviço",
+  instalacao: "Instalação",
+  desinstalacao: "Desinstalação",
+  manutencao: "Manutenção",
+};
 
 function ClosingPage() {
   const { id } = Route.useParams();
@@ -70,7 +79,8 @@ function ClosingPage() {
     );
   }
 
-  const { client, items, total, pago, aberto } = q.data;
+  const { client, company, invoiceNumber, items, total, pago, aberto } = q.data;
+  const invoiceStr = String(invoiceNumber).padStart(6, "0");
 
   return (
     <div className="invoice-page">
@@ -78,28 +88,37 @@ function ClosingPage() {
         <Link to="/clientes/$id" params={{ id }} className="secondary">
           Voltar
         </Link>
-        <button onClick={() => window.print()}>Imprimir / Salvar em PDF</button>
+        <button onClick={() => window.print()}>Exportar / Salvar em PDF</button>
       </div>
 
       <div className="invoice">
         <div className="invoice__header">
-          <div>
-            <div className="invoice__brand">Sistema de Gestão</div>
-            <h1 className="invoice__title">Recibo / Fechamento</h1>
-            <div className="invoice__meta">
-              Referente a <strong>{monthLabel}</strong>
+          <div className="invoice__brandBlock">
+            <img src={americanGpsLogo.url} alt="Logomarca" className="invoice__logo" />
+            <div>
+              <div className="invoice__brand">{company?.name || "Sua Empresa"}</div>
+              {company?.cnpj && <div className="invoice__meta">CNPJ: {company.cnpj}</div>}
+              {company?.address && <div className="invoice__meta">{company.address}</div>}
+              {(company?.phone || company?.email) && (
+                <div className="invoice__meta">
+                  {[company.phone, company.email].filter(Boolean).join(" · ")}
+                </div>
+              )}
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="invoice__meta">Nota Nº</div>
+            <div style={{ fontSize: "1.4rem", fontWeight: 700 }}>{invoiceStr}</div>
+            <div className="invoice__meta" style={{ marginTop: 8 }}>
+              Referência: <strong>{monthLabel}</strong>
             </div>
             <div className="invoice__meta">
               Emitido em {new Date().toLocaleDateString("pt-BR")}
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="invoice__meta">Nº</div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>
-              {month.replace("-", "")}-{client.id.slice(0, 6).toUpperCase()}
-            </div>
-          </div>
         </div>
+
+        <h1 className="invoice__title">Nota de Fechamento</h1>
 
         <div className="invoice__client">
           <h2>Cliente</h2>
@@ -112,7 +131,7 @@ function ClosingPage() {
           <thead>
             <tr>
               <th>Data</th>
-              <th>Tipo</th>
+              <th>Categoria</th>
               <th>Descrição</th>
               <th>Status</th>
               <th className="num">Valor</th>
@@ -129,7 +148,7 @@ function ClosingPage() {
             {items.map((s) => (
               <tr key={s.id}>
                 <td>{fmtDate(s.occurred_at)}</td>
-                <td style={{ textTransform: "capitalize" }}>{s.kind}</td>
+                <td>{KIND_LABEL[s.kind] || s.kind}</td>
                 <td>{s.description}</td>
                 <td>{s.paid ? "Pago" : "Em aberto"}</td>
                 <td className="num">{fmtBRL(Number(s.amount))}</td>
@@ -145,7 +164,7 @@ function ClosingPage() {
         </div>
 
         <div className="invoice__footer">
-          Documento gerado eletronicamente pelo Sistema de Gestão.
+          Documento gerado eletronicamente pelo Sistema de Gestão · Nota Nº {invoiceStr}
         </div>
       </div>
     </div>
