@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const saleInput = z.object({
   client_id: z.string().uuid(),
-  kind: z.enum(["produto", "servico"]),
+  kind: z.enum(["produto", "servico", "instalacao", "desinstalacao", "manutencao"]),
   description: z.string().trim().min(1).max(300),
   amount: z.number().nonnegative().max(9_999_999),
   occurred_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
