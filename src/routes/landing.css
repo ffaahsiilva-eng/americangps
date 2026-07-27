@@ -208,14 +208,6 @@ a.button--primary, .button--primary {
   border-top: 5px solid transparent; border-bottom: 5px solid transparent;
   margin-left: 2px;
 }
-.service-card__icon--screen::before {
-  content: ""; width: 26px; height: 18px;
-  border: 2px solid #f3f3f1; border-radius: 3px;
-}
-.service-card__icon--screen::after {
-  content: ""; position: absolute; bottom: 12px;
-  width: 10px; height: 2px; background: #f3f3f1;
-}
 .service-card__title {
   margin: 42px 0 14px; font-size: 1.9rem; font-weight: 400; letter-spacing: -.02em;
 }
