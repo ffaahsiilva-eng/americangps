@@ -31,37 +31,8 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const HERO_VIDEO_DESKTOP =
-  "https://res.cloudinary.com/dalwymbky/video/upload/v1782346534/hero2_gtrjg7.mp4";
-const HERO_VIDEO_MOBILE =
-  "https://res.cloudinary.com/dalwymbky/video/upload/v1782346535/hero2mobile_vy9zzi.mp4";
 const IMG_ABOUT =
   "https://res.cloudinary.com/dalwymbky/image/upload/v1782346528/b2_j1oc3v.png";
-const IMG_DELIVERABLE =
-  "https://res.cloudinary.com/dalwymbky/image/upload/v1782346527/i1_va5clt.png";
-
-const FAQ_ITEMS = [
-  {
-    q: "Como funciona o acesso ao Painel?",
-    a: "Cada usuário cria uma conta com e-mail e senha. O acesso é individual e cada operador só enxerga os próprios clientes e lançamentos.",
-  },
-  {
-    q: "Preciso instalar algo no computador?",
-    a: "Não. O Painel de Controle roda direto pelo navegador, no computador ou no celular, sem instalação.",
-  },
-  {
-    q: "Meus dados ficam seguros?",
-    a: "Sim. Todas as informações ficam armazenadas no banco de dados com controle de acesso individual por usuário.",
-  },
-  {
-    q: "Consigo gerar recibo ou nota do cliente?",
-    a: "Sim. Dentro do perfil do cliente há o botão Gerar Fechamento, que compila todos os itens do mês em um documento pronto para impressão ou para salvar em PDF.",
-  },
-  {
-    q: "O sistema soma o caixa automaticamente?",
-    a: "Sim. O Painel mostra o total do período com filtros de semana e mês, separando produtos, serviços, valores pagos e em aberto.",
-  },
-];
 
 function LandingPage() {
   const rootRef = useRef<HTMLDivElement>(null);
