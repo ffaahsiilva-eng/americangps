@@ -28,6 +28,97 @@ function noteSummary(sales: { kind: string; description: string; amount: number 
   return `${count} ${count === 1 ? "item" : "itens"} (${parts.join(", ")})`;
 }
 
+function NoteCard({
+  note,
+  method,
+  noteStr,
+  ctx,
+  canWhats,
+}: {
+  note: {
+    id: string;
+    note_number: number;
+    occurred_at: string;
+    payment_method: string | null;
+    paid: boolean;
+    total: number;
+    sales: { id: string; kind: string; description: string; amount: number }[];
+  };
+  method: string;
+  noteStr: string;
+  ctx: {
+    company: Record<string, unknown>;
+    logoUrl: string;
+    clientName: string;
+    clientPhone: string | null;
+    items: ReceiptItem[];
+    total: number;
+    method: string | null;
+    dateStr: string;
+    invoiceNumber: number;
+  };
+  canWhats: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="note-card">
+      <div className="note-card__head">
+        <div>
+          <div className="note-card__num">Nota Nº {noteStr}</div>
+          <div className="note-card__meta">
+            {fmtDate(note.occurred_at)} · {method}
+          </div>
+          <div className="note-card__summary">{noteSummary(note.sales ?? [])}</div>
+        </div>
+        <div className="note-card__totals">
+          <span className={`chip chip--${note.paid ? "pago" : "aberto"}`}>
+            {note.paid ? "Pago" : "Em aberto"}
+          </span>
+          <div className="note-card__total">{fmtBRL(Number(note.total))}</div>
+        </div>
+      </div>
+      {open && (
+        <ul className="note-card__items">
+          {(note.sales ?? []).map((it) => (
+            <li key={it.id}>
+              <span className={`chip chip--${it.kind}`}>{it.kind}</span>
+              <span className="note-card__desc">{it.description}</span>
+              <span className="note-card__amount">{fmtBRL(Number(it.amount))}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="note-card__actions">
+        <button
+          type="button"
+          className="button--ghost button--sm"
+          onClick={() => setOpen((v) => !v)}
+          title={open ? "Ocultar itens" : "Ver itens"}
+        >
+          {open ? "▲ Ocultar itens" : "▼ Ver itens"}
+        </button>
+        <button
+          type="button"
+          className="button--ghost button--sm"
+          onClick={() => openPrintReceipt(ctx)}
+          title="Imprimir ou salvar em PDF"
+        >
+          🖨️ PDF / Imprimir
+        </button>
+        <button
+          type="button"
+          className="button--ghost button--sm"
+          onClick={() => openWhatsappReceipt(ctx)}
+          disabled={!canWhats}
+          title={canWhats ? "Reenviar para WhatsApp" : "Cliente sem telefone cadastrado"}
+        >
+          💬 WhatsApp
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
