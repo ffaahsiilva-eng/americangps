@@ -96,35 +96,7 @@ function LandingPage() {
       revealTargets.forEach((t) => t.classList.add("is-visible"));
     }
 
-    const triggers = Array.from(root.querySelectorAll<HTMLButtonElement>(".faq-item__trigger"));
-    const handlers: Array<() => void> = [];
-    triggers.forEach((t) => {
-      const handler = () => {
-        const expanded = t.getAttribute("aria-expanded") === "true";
-        triggers.forEach((other) => {
-          other.setAttribute("aria-expanded", "false");
-          const ans = other.parentElement?.querySelector<HTMLElement>(".faq-item__answer");
-          if (ans) ans.hidden = true;
-        });
-        if (!expanded) {
-          t.setAttribute("aria-expanded", "true");
-          const ans = t.parentElement?.querySelector<HTMLElement>(".faq-item__answer");
-          if (ans) ans.hidden = false;
-        }
-      };
-      t.addEventListener("click", handler);
-      handlers.push(() => t.removeEventListener("click", handler));
-    });
-
     return () => {
-      timers.forEach((id) => window.clearInterval(id));
-      document.removeEventListener("visibilitychange", globalPlay);
-      window.removeEventListener("pageshow", globalPlay);
-      window.removeEventListener("focus", globalPlay);
-      window.removeEventListener("touchstart", globalPlay);
-      window.removeEventListener("touchend", globalPlay);
-      window.removeEventListener("click", globalPlay);
-      handlers.forEach((h) => h());
       document.body.classList.remove("landing-body");
     };
   }, []);
