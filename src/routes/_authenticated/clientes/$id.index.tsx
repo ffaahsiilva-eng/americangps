@@ -753,6 +753,58 @@ function SaleModal({
           </div>
         </div>
       )}
+
+      {showNewItem && (
+        <div className="pay-overlay" onClick={() => !savingItem && setShowNewItem(false)}>
+          <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pay-modal__head">
+              <div>
+                <div className="pos-eyebrow">Estoque</div>
+                <h3 className="pay-modal__title">Novo item</h3>
+                <div className="pay-modal__sub">Categoria: {CATEGORY_LABEL[draft.category]}</div>
+              </div>
+              <button className="button--ghost button--sm" onClick={() => setShowNewItem(false)} disabled={savingItem}>
+                Cancelar
+              </button>
+            </div>
+            {itemError && <div className="auth-error" style={{ marginBottom: 12 }}>{itemError}</div>}
+            <div className="field">
+              <label>Grupo (opcional)</label>
+              <input
+                value={newItem.group_name}
+                onChange={(e) => setNewItem({ ...newItem, group_name: e.target.value })}
+                placeholder="Ex.: Sighra Light, Complementos..."
+              />
+            </div>
+            <div className="field">
+              <label>Nome do item</label>
+              <input
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                placeholder="Nome do produto, kit ou serviço"
+                autoFocus
+              />
+            </div>
+            <div className="field">
+              <label>Preço sugerido (opcional)</label>
+              <input
+                inputMode="decimal"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+                placeholder="0,00"
+              />
+            </div>
+            <div className="row" style={{ gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
+              <button type="button" className="button--ghost" onClick={() => setShowNewItem(false)} disabled={savingItem}>
+                Cancelar
+              </button>
+              <button type="button" className="button button--primary" onClick={saveNewItem} disabled={savingItem}>
+                {savingItem ? "Salvando…" : "Salvar e usar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
