@@ -195,7 +195,7 @@ function ClientDetail() {
         </div>
       </div>
 
-      <div className="stats" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+      <div className="stats stats--three">
         <div className="stat stat--accent">
           <div className="stat__label">Total do mês</div>
           <div className="stat__value">{fmtBRL(totals.total)}</div>
