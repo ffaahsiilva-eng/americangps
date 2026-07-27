@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import heroVideo from "@/assets/hero-video.mp4.asset.json";
 import "./landing.css";
 
 export const Route = createFileRoute("/")({
@@ -122,7 +122,7 @@ function LandingPage() {
             </div>
           </div>
           <figure className="hero__brand">
-            <img src={americanGpsLogo.url} alt="American GPS" />
+            <video src={heroVideo.url} autoPlay muted loop playsInline />
           </figure>
         </div>
         <div className="hero__line" aria-hidden="true" />
