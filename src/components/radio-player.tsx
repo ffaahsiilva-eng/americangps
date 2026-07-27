@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const STREAMS = [
-  { name: "Hip Hop Station (radio-ao-vivo)", url: "https://stream.laut.fm/oldschool-hip-hop" },
+  { name: "181.FM The Beat (Hip Hop / R&B)", url: "https://listen.181fm.com/181-beat_128k.mp3" },
   { name: "90s90s Hip Hop", url: "https://streams.90s90s.de/hiphop/mp3-192/" },
-  { name: "Hip Hop Classics", url: "https://stream.laut.fm/hip-hop-classics" },
+  { name: "Laut.FM Hip Hop", url: "https://stream.laut.fm/hiphop" },
+  { name: "Laut.FM Old School Hip Hop", url: "https://stream.laut.fm/oldschool-hip-hop" },
+  { name: "Laut.FM Hip Hop Classics", url: "https://stream.laut.fm/hip-hop-classics" },
 ];
 
 
