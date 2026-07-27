@@ -73,7 +73,7 @@ function PainelPage() {
         </div>
       </div>
 
-      <div className="stats" style={{ gridTemplateColumns: "1fr 1fr" }}>
+      <div className="stats stats--two">
         <div className="stat">
           <div className="stat__label">Pago</div>
           <div className="stat__value">{fmtBRL(summary.data?.pago ?? 0)}</div>

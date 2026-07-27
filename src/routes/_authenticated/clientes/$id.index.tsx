@@ -148,18 +148,22 @@ function ClientDetail() {
         </Link>
       </div>
 
-      <div className="row row--between" style={{ marginBottom: 8 }}>
-        <div>
+      <div className="row row--between" style={{ marginBottom: 8, gap: 16 }}>
+        <div style={{ flex: "1 1 240px", minWidth: 0 }}>
           <h1 className="app-title" style={{ marginBottom: 4 }}>
             {client.data?.name || "..."}
           </h1>
-          <p className="app-subtitle" style={{ marginBottom: 0 }}>
+          <p className="app-subtitle" style={{ marginBottom: 0, wordBreak: "break-word" }}>
             {[client.data?.email, client.data?.phone].filter(Boolean).join(" · ") ||
               "Sem contato cadastrado"}
           </p>
         </div>
-        <div className="row">
-          <button className="button button--primary" onClick={() => setModalOpen(true)}>
+        <div className="row" style={{ flex: "1 1 auto" }}>
+          <button
+            className="button button--primary"
+            onClick={() => setModalOpen(true)}
+            style={{ flex: "1 1 200px" }}
+          >
             Adicionar venda/serviço
           </button>
           <Link
@@ -167,12 +171,13 @@ function ClientDetail() {
             params={{ id }}
             search={{ mes: month }}
             className="button--ghost active"
-            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+            style={{ textDecoration: "none", flex: "1 1 180px", justifyContent: "center" }}
           >
             Gerar fechamento
           </Link>
         </div>
       </div>
+
 
       {client.data?.notes && (
         <div className="panel" style={{ marginTop: 24 }}>
@@ -190,7 +195,7 @@ function ClientDetail() {
         </div>
       </div>
 
-      <div className="stats" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+      <div className="stats stats--three">
         <div className="stat stat--accent">
           <div className="stat__label">Total do mês</div>
           <div className="stat__value">{fmtBRL(totals.total)}</div>

@@ -127,35 +127,38 @@ function ClosingPage() {
           {client.phone && <div className="invoice__meta">{client.phone}</div>}
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Categoria</th>
-              <th>Descrição</th>
-              <th>Status</th>
-              <th className="num">Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 && (
+        <div className="invoice-table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={5} style={{ textAlign: "center", color: "#888" }}>
-                  Nenhum lançamento neste mês.
-                </td>
+                <th>Data</th>
+                <th>Categoria</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th className="num">Valor</th>
               </tr>
-            )}
-            {items.map((s) => (
-              <tr key={s.id}>
-                <td>{fmtDate(s.occurred_at)}</td>
-                <td>{KIND_LABEL[s.kind] || s.kind}</td>
-                <td>{s.description}</td>
-                <td>{s.paid ? "Pago" : "Em aberto"}</td>
-                <td className="num">{fmtBRL(Number(s.amount))}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {items.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", color: "#888" }}>
+                    Nenhum lançamento neste mês.
+                  </td>
+                </tr>
+              )}
+              {items.map((s) => (
+                <tr key={s.id}>
+                  <td>{fmtDate(s.occurred_at)}</td>
+                  <td>{KIND_LABEL[s.kind] || s.kind}</td>
+                  <td>{s.description}</td>
+                  <td>{s.paid ? "Pago" : "Em aberto"}</td>
+                  <td className="num">{fmtBRL(Number(s.amount))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
 
         <div className="invoice__totals">
           <div>Total pago: {fmtBRL(pago)}</div>
