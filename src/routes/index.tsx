@@ -170,7 +170,6 @@ function LandingPage() {
               </p>
             </article>
             <article className="service-card reveal-up" style={{ transitionDelay: "360ms" }}>
-              <div className="service-card__icon service-card__icon--screen" />
               <h3 className="service-card__title">Fechamento Mensal</h3>
               <p className="service-card__copy">
                 Um clique para gerar o recibo do mês com todos os itens do cliente, pronto para imprimir ou salvar em PDF.
