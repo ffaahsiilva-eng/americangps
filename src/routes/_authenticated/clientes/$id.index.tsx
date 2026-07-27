@@ -7,6 +7,14 @@ import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import {
+  openPrintReceipt,
+  openWhatsappReceipt,
+  sanitizeWhatsappPhone,
+  type ReceiptItem,
+} from "@/lib/receipt-print";
+
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
@@ -43,10 +51,16 @@ function ClientDetail() {
   const togglePaidFn = useServerFn(toggleSalePaid);
   const deleteSaleFn = useServerFn(deleteSale);
   const deleteClientFn = useServerFn(deleteClient);
+  const getCompanyFn = useServerFn(getCompanySettings);
 
   const client = useQuery({
     queryKey: ["client", id],
     queryFn: () => getClientFn({ data: { id } }),
+  });
+
+  const company = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: () => getCompanyFn({}),
   });
 
   const { from, to } = useMemo(() => monthRange(month), [month]);
@@ -56,26 +70,46 @@ function ClientDetail() {
     queryFn: () => listSalesFn({ data: { clientId: id, from, to } }),
   });
 
+  type FinalizedContext = {
+    items: ReceiptItem[];
+    method: string | null;
+    dateStr: string;
+    total: number;
+  };
+  const [receipt, setReceipt] = useState<FinalizedContext | null>(null);
+
   const createMut = useMutation({
-    mutationFn: async (items: Array<{
-      kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
-      description: string;
-      amount: number;
-      occurred_at: string;
-      paid: boolean;
-      payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
-    }>) => {
-      for (const it of items) {
-        await createSaleFn({ data: { ...it, client_id: id } });
+    mutationFn: async (ctx: {
+      items: ReceiptItem[];
+      method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+      dateStr: string;
+    }) => {
+      const paid = ctx.method !== null;
+      for (const it of ctx.items) {
+        await createSaleFn({
+          data: {
+            client_id: id,
+            kind: it.category,
+            description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
+            amount: it.total,
+            occurred_at: ctx.dateStr,
+            paid,
+            payment_method: ctx.method,
+          },
+        });
       }
+      return ctx;
     },
-    onSuccess: () => {
+    onSuccess: (ctx) => {
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["cash-summary"] });
       qc.invalidateQueries({ queryKey: ["recent-sales"] });
       setModalOpen(false);
+      const total = ctx.items.reduce((s, i) => s + i.total, 0);
+      setReceipt({ items: ctx.items, method: ctx.method, dateStr: ctx.dateStr, total });
     },
   });
+
 
   const toggleMut = useMutation({
     mutationFn: ({ saleId, paid }: { saleId: string; paid: boolean }) =>
@@ -248,6 +282,17 @@ function ClientDetail() {
           error={createMut.error?.message}
         />
       )}
+
+      {receipt && (
+        <ReceiptActions
+          clientName={client.data?.name || ""}
+          clientPhone={client.data?.phone || null}
+          company={company.data ?? {}}
+          data={receipt}
+          onClose={() => setReceipt(null)}
+        />
+      )}
+
     </AppShell>
   );
 }
@@ -288,17 +333,15 @@ function SaleModal({
 }: {
   clientName: string;
   onClose: () => void;
-  onSubmit: (data: Array<{
-    kind: "produto" | "servico" | "instalacao" | "desinstalacao" | "manutencao";
-    description: string;
-    amount: number;
-    occurred_at: string;
-    paid: boolean;
-    payment_method?: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
-  }>) => void;
+  onSubmit: (data: {
+    items: ReceiptItem[];
+    method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+    dateStr: string;
+  }) => void;
   loading: boolean;
   error?: string;
 }) {
+
   const [draft, setDraft] = useState<ItemDraft>(emptyDraft());
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
@@ -340,17 +383,16 @@ function SaleModal({
 
   function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
-    const paid = method !== null;
-    const payload = items.map((it) => ({
-      kind: it.category,
-      description: it.qty > 1 ? `${it.service} (x${it.qty})` : it.service,
-      amount: it.total,
-      occurred_at: occurredAt,
-      paid,
-      payment_method: method,
+    const payload: ReceiptItem[] = items.map((it) => ({
+      category: it.category,
+      service: it.service,
+      qty: it.qty,
+      unit: it.unit,
+      total: it.total,
     }));
-    onSubmit(payload);
+    onSubmit({ items: payload, method, dateStr: occurredAt });
   }
+
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -632,4 +674,86 @@ function SaleModal({
     </div>
   );
 }
+
+function ReceiptActions({
+  clientName,
+  clientPhone,
+  company,
+  data,
+  onClose,
+}: {
+  clientName: string;
+  clientPhone: string | null;
+  company: {
+    name?: string | null;
+    cnpj?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    email?: string | null;
+  };
+  data: {
+    items: ReceiptItem[];
+    method: string | null;
+    dateStr: string;
+    total: number;
+  };
+  onClose: () => void;
+}) {
+  const ctx = {
+    company,
+    logoUrl: americanGpsLogo.url,
+    clientName,
+    clientPhone,
+    items: data.items,
+    total: data.total,
+    method: data.method,
+    dateStr: data.dateStr,
+  };
+  const hasPhone = !!sanitizeWhatsappPhone(clientPhone);
+
+  return (
+    <div className="pay-overlay" onClick={onClose}>
+      <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="pay-modal__head">
+          <div>
+            <div className="pos-eyebrow">Venda finalizada</div>
+            <h3 className="pay-modal__title">O que deseja fazer?</h3>
+            <div className="pay-modal__sub">
+              Total {data.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            </div>
+          </div>
+          <button className="button--ghost button--sm" onClick={onClose}>
+            Fechar
+          </button>
+        </div>
+        <div className="pay-grid">
+          <button
+            type="button"
+            className="pay-option"
+            onClick={() => openPrintReceipt(ctx)}
+          >
+            <span className="pay-option__icon">🖨</span>
+            <span className="pay-option__label">Imprimir / Salvar PDF</span>
+          </button>
+          <button
+            type="button"
+            className="pay-option"
+            disabled={!hasPhone}
+            title={hasPhone ? "" : "Cliente sem telefone cadastrado"}
+            onClick={() => openWhatsappReceipt(ctx)}
+          >
+            <span className="pay-option__icon">💬</span>
+            <span className="pay-option__label">Enviar WhatsApp</span>
+          </button>
+        </div>
+        {!hasPhone && (
+          <div className="pay-modal__sub" style={{ marginTop: 8, textAlign: "center" }}>
+            Cadastre um telefone no cliente para enviar por WhatsApp.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
