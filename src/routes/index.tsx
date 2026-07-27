@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import "./landing.css";
+import americanGpsLogo from "../assets/american-gps-logo.png.asset.json";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,8 +36,8 @@ const HERO_VIDEO_DESKTOP =
   "https://res.cloudinary.com/dalwymbky/video/upload/v1782346534/hero2_gtrjg7.mp4";
 const HERO_VIDEO_MOBILE =
   "https://res.cloudinary.com/dalwymbky/video/upload/v1782346535/hero2mobile_vy9zzi.mp4";
-const IMG_ABOUT =
-  "https://res.cloudinary.com/dalwymbky/image/upload/v1782346528/b2_j1oc3v.png";
+const IMG_ABOUT = americanGpsLogo.url;
+
 const IMG_DELIVERABLE =
   "https://res.cloudinary.com/dalwymbky/image/upload/v1782346527/i1_va5clt.png";
 
