@@ -201,23 +201,239 @@ export function openPrintReceipt(ctx: ReceiptContext) {
   w.document.close();
 }
 
+export async function buildReceiptPdfBlob(ctx: ReceiptContext): Promise<Blob> {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  let y = margin;
+
+  // Header: try to embed logo
+  try {
+    const dataUrl = await urlToDataUrl(ctx.logoUrl);
+    if (dataUrl) doc.addImage(dataUrl, "PNG", margin, y, 70, 70);
+  } catch {
+    /* ignore */
+  }
+
+  const empresa = ctx.company.name || "AMERICAN GPS";
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(empresa, margin + 84, y + 20);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  let hy = y + 34;
+  if (ctx.company.cnpj) {
+    doc.text(`CNPJ: ${ctx.company.cnpj}`, margin + 84, hy);
+    hy += 12;
+  }
+  if (ctx.company.address) {
+    doc.text(ctx.company.address, margin + 84, hy);
+    hy += 12;
+  }
+  const contact = [ctx.company.phone, ctx.company.email].filter(Boolean).join(" · ");
+  if (contact) {
+    doc.text(contact, margin + 84, hy);
+    hy += 12;
+  }
+
+  y = Math.max(y + 80, hy + 4);
+  doc.setDrawColor(0);
+  doc.setLineWidth(1.2);
+  doc.line(margin, y, pageW - margin, y);
+  y += 16;
+
+  // Meta boxes
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("CLIENTE", margin, y);
+  doc.text("DOCUMENTO", pageW / 2 + 10, y);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.text(ctx.clientName, margin, y + 14);
+  if (ctx.clientPhone) {
+    doc.setFontSize(9);
+    doc.text(ctx.clientPhone, margin, y + 28);
+  }
+  const invoiceLabel = ctx.invoiceNumber
+    ? `Nota Nº ${String(ctx.invoiceNumber).padStart(4, "0")}`
+    : "";
+  doc.setFontSize(10);
+  if (invoiceLabel) doc.text(invoiceLabel, pageW / 2 + 10, y + 14);
+  doc.text(`Data: ${fmtDateSimple(ctx.dateStr)}`, pageW / 2 + 10, y + (invoiceLabel ? 28 : 14));
+
+  y += 46;
+  doc.setDrawColor(180);
+  doc.line(margin, y, pageW - margin, y);
+  y += 14;
+
+  // Table header
+  const colDescX = margin;
+  const colQtdX = pageW - margin - 200;
+  const colUnitX = pageW - margin - 130;
+  const colTotalX = pageW - margin;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("DESCRIÇÃO", colDescX, y);
+  doc.text("QTD", colQtdX, y, { align: "right" });
+  doc.text("UNIT.", colUnitX, y, { align: "right" });
+  doc.text("TOTAL", colTotalX, y, { align: "right" });
+  y += 6;
+  doc.setDrawColor(0);
+  doc.line(margin, y, pageW - margin, y);
+  y += 12;
+
+  const groups = new Map<ServiceCategory, ReceiptItem[]>();
+  for (const it of ctx.items) {
+    const arr = groups.get(it.category) ?? [];
+    arr.push(it);
+    groups.set(it.category, arr);
+  }
+
+  const ensureSpace = (need: number) => {
+    if (y + need > pageH - margin - 80) {
+      doc.addPage();
+      y = margin;
+    }
+  };
+
+  for (const [cat, list] of groups) {
+    ensureSpace(30);
+    doc.setFillColor(240);
+    doc.rect(margin, y - 10, pageW - margin * 2, 16, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(CATEGORY_LABEL[cat].toUpperCase(), margin + 6, y);
+    y += 14;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    let catTotal = 0;
+    for (const it of list) {
+      ensureSpace(18);
+      const desc = doc.splitTextToSize(it.service, colQtdX - colDescX - 10);
+      doc.text(desc, colDescX, y);
+      doc.text(String(it.qty), colQtdX, y, { align: "right" });
+      doc.text(fmtBRL(it.unit), colUnitX, y, { align: "right" });
+      doc.text(fmtBRL(it.total), colTotalX, y, { align: "right" });
+      y += Math.max(14, desc.length * 12);
+      catTotal += it.total;
+    }
+    ensureSpace(20);
+    doc.setDrawColor(200);
+    doc.line(margin + 200, y - 4, pageW - margin, y - 4);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text(`Subtotal ${CATEGORY_LABEL[cat]}`, colUnitX, y + 6, { align: "right" });
+    doc.text(fmtBRL(catTotal), colTotalX, y + 6, { align: "right" });
+    y += 22;
+  }
+
+  ensureSpace(80);
+  y += 10;
+  doc.setDrawColor(0);
+  doc.setLineWidth(1.5);
+  doc.rect(pageW - margin - 200, y, 200, 52);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("TOTAL", pageW - margin - 190, y + 16);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(fmtBRL(ctx.total), pageW - margin - 10, y + 40, { align: "right" });
+  y += 62;
+
+  const methodLabel = ctx.method
+    ? METHOD_LABEL[ctx.method] ?? ctx.method
+    : "Em aberto";
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(`Forma de pagamento: ${methodLabel}`, pageW - margin, y, { align: "right" });
+
+  // Footer
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text("Obrigado pela preferência!", pageW / 2, pageH - margin, { align: "center" });
+
+  return doc.output("blob");
+}
+
+function fmtDateSimple(d: string) {
+  const [y, m, day] = d.split("-");
+  return `${day}/${m}/${y}`;
+}
+
+async function urlToDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise((resolve) => {
+      const r = new FileReader();
+      r.onloadend = () => resolve(typeof r.result === "string" ? r.result : null);
+      r.onerror = () => resolve(null);
+      r.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+function pdfFilename(ctx: ReceiptContext): string {
+  const safeName = ctx.clientName.replace(/[^\w\-]+/g, "_").slice(0, 40) || "cliente";
+  const inv = ctx.invoiceNumber ? `_nota${String(ctx.invoiceNumber).padStart(4, "0")}` : "";
+  return `Nota_${safeName}${inv}_${ctx.dateStr}.pdf`;
+}
+
 export function sanitizeWhatsappPhone(phone?: string | null): string | null {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
   if (!digits) return null;
-  // If it doesn't start with country code, assume Brazil (55)
   if (digits.length <= 11) return `55${digits}`;
   return digits;
 }
 
-export function openWhatsappReceipt(ctx: ReceiptContext): boolean {
+export async function openWhatsappReceipt(ctx: ReceiptContext): Promise<boolean> {
   const phone = sanitizeWhatsappPhone(ctx.clientPhone);
   if (!phone) {
     alert("Este cliente não tem telefone cadastrado.");
     return false;
   }
   const text = buildReceiptText(ctx);
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+  const filename = pdfFilename(ctx);
+
+  // Try Web Share API with the PDF file (works on mobile WhatsApp)
+  try {
+    const blob = await buildReceiptPdfBlob(ctx);
+    const file = new File([blob], filename, { type: "application/pdf" });
+    const nav = navigator as Navigator & {
+      canShare?: (data: ShareData & { files?: File[] }) => boolean;
+      share?: (data: ShareData & { files?: File[] }) => Promise<void>;
+    };
+    if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
+      await nav.share({ files: [file], text, title: `Nota — ${ctx.clientName}` });
+      return true;
+    }
+
+    // Desktop fallback: download PDF and open WhatsApp with the summary text.
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch (e) {
+    console.error("PDF generation failed", e);
+  }
+
+  const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  window.open(waUrl, "_blank", "noopener,noreferrer");
   return true;
 }
+
+const METHOD_LABEL_LOCAL_MARKER = 0; // keep imports below stable
+void METHOD_LABEL_LOCAL_MARKER;
+
