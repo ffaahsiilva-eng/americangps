@@ -297,13 +297,10 @@ function EstoquePage() {
       )}
 
       {editing && (
-        <div className="modal-overlay" onClick={() => !saving && setEditing(null)}>
+        <div className="modal-backdrop" onClick={() => !saving && setEditing(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal__head">
-              <h2>{editing.id ? "Editar item" : "Novo item"}</h2>
-              <button className="btn btn--ghost btn--sm" onClick={() => setEditing(null)} disabled={saving}>Fechar</button>
-            </div>
-            <div className="modal__body">
+            <h2>{editing.id ? "Editar item" : "Novo item"}</h2>
+            <form onSubmit={(e) => { e.preventDefault(); saveDraft(); }}>
               <div className="field">
                 <label>Categoria</label>
                 <select
@@ -333,6 +330,7 @@ function EstoquePage() {
                   value={editing.name}
                   onChange={(e) => setEditing({ ...editing, name: e.target.value })}
                   placeholder="Nome do produto, kit ou serviço"
+                  required
                 />
               </div>
               <div className="field">
@@ -344,13 +342,13 @@ function EstoquePage() {
                   placeholder="0,00"
                 />
               </div>
-            </div>
-            <div className="modal__foot">
-              <button className="btn btn--ghost" onClick={() => setEditing(null)} disabled={saving}>Cancelar</button>
-              <button className="btn btn--primary" onClick={saveDraft} disabled={saving}>
-                {saving ? "Salvando…" : "Salvar"}
-              </button>
-            </div>
+              <div className="row" style={{ gap: 10, justifyContent: "flex-end", marginTop: 12, flexShrink: 0 }}>
+                <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)} disabled={saving}>Cancelar</button>
+                <button type="submit" className="btn btn--primary" disabled={saving}>
+                  {saving ? "Salvando…" : "Salvar"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
