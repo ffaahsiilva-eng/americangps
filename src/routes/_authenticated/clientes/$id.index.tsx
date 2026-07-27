@@ -6,7 +6,7 @@ import { AppShell, fmtBRL, fmtDate } from "../-shell";
 import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
 
-export const Route = createFileRoute("/_authenticated/clientes/$id")({
+export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
     meta: [
       { title: "Cliente — Sistema de Gestão" },
