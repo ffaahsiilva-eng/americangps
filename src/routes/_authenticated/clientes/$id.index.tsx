@@ -499,18 +499,11 @@ function SaleModal({
                 <label>Data</label>
                 <input type="date" value={occurredAt} onChange={(e) => setOccurredAt(e.target.value)} />
               </div>
-              <div className="field" style={{ marginBottom: 0 }}>
-                <label>Status</label>
-                <select value={paid ? "1" : "0"} onChange={(e) => setPaid(e.target.value === "1")}>
-                  <option value="0">Em aberto</option>
-                  <option value="1">Pago</option>
-                </select>
-              </div>
             </div>
             <button
               type="button"
               className="button button--primary pos-finalize"
-              onClick={finalize}
+              onClick={() => setShowPayment(true)}
               disabled={loading || items.length === 0}
             >
               {loading ? "Salvando…" : `Finalizar · ${fmtBRL(total)}`}
