@@ -7,6 +7,14 @@ import { getClient, deleteClient } from "@/lib/clients.functions";
 import { listSales, createSale, toggleSalePaid, deleteSale } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
+import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import {
+  openPrintReceipt,
+  openWhatsappReceipt,
+  sanitizeWhatsappPhone,
+  type ReceiptItem,
+} from "@/lib/receipt-print";
+
 
 export const Route = createFileRoute("/_authenticated/clientes/$id/")({
   head: () => ({
