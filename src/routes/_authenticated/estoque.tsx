@@ -186,7 +186,7 @@ function EstoquePage() {
             Catálogo completo de produtos, kits e serviços. Edite ou adicione itens conforme necessário.
           </p>
         </div>
-        <button className="btn btn--primary" onClick={() => setEditing({ ...EMPTY_DRAFT })}>
+        <button className="button button--primary" onClick={() => setEditing({ ...EMPTY_DRAFT })}>
           + Novo item
         </button>
       </div>
@@ -268,7 +268,7 @@ function EstoquePage() {
                       </span>
                       <span style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                         <button
-                          className="btn btn--ghost btn--sm"
+                          className="button--ghost"
                           onClick={() => setEditing({
                             id: item.id,
                             category: item.category,
@@ -279,7 +279,7 @@ function EstoquePage() {
                         >
                           Editar
                         </button>
-                        <button className="btn btn--ghost btn--sm" onClick={() => removeItem(item.id)}>
+                        <button className="button--ghost" onClick={() => removeItem(item.id)}>
                           Excluir
                         </button>
                       </span>
@@ -343,8 +343,8 @@ function EstoquePage() {
                 />
               </div>
               <div className="row" style={{ gap: 10, justifyContent: "flex-end", marginTop: 12, flexShrink: 0 }}>
-                <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)} disabled={saving}>Cancelar</button>
-                <button type="submit" className="btn btn--primary" disabled={saving}>
+                <button type="button" className="button--ghost" onClick={() => setEditing(null)} disabled={saving}>Cancelar</button>
+                <button type="submit" className="button button--primary" disabled={saving}>
                   {saving ? "Salvando…" : "Salvar"}
                 </button>
               </div>
