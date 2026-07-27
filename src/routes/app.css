@@ -185,15 +185,31 @@
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100;
   display: flex; align-items: center; justify-content: center; padding: 24px;
+  overflow-y: auto;
 }
 .modal {
   width: min(100%, 520px); background: #0b0b0b;
   border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
   padding: 32px;
+  max-height: calc(100vh - 48px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
 .modal h2 {
   font-size: 1.6rem; font-weight: 300; letter-spacing: -.02em;
   margin: 0 0 20px; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.modal form {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-right: 6px;
+  margin-right: -6px;
+}
+.modal form::-webkit-scrollbar { width: 8px; }
+.modal form::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.15); border-radius: 4px;
 }
 
 /* Print / invoice */
