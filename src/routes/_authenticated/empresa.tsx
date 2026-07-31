@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/lib/app-shell";
 import { getCompanySettings, saveCompanySettings } from "@/lib/company.functions";
+import cadastroPlanilha from "@/assets/cadastro-american-gps.xlsx.asset.json";
 
 export const Route = createFileRoute("/_authenticated/empresa")({
   head: () => ({
