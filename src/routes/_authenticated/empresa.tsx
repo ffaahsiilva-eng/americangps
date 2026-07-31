@@ -52,6 +52,17 @@ function EmpresaPage() {
       <h1 className="app-title" style={{ marginBottom: 4 }}>Dados da Empresa</h1>
       <p className="app-subtitle">Usados nos fechamentos e notas geradas em PDF.</p>
 
+      <a
+        className="button button--primary"
+        href={cadastroPlanilha.url}
+        download="cadastro-american-gps.xlsx"
+        style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 8 }}
+      >
+        ⬇️ Baixar planilha de cadastro (.xlsx)
+      </a>
+
+
+
       <div className="panel" style={{ maxWidth: 720, marginTop: 24 }}>
         <form
           onSubmit={(e) => {
