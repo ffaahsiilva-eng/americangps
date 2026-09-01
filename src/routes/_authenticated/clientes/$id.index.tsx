@@ -477,6 +477,19 @@ function SaleModal({
     setItems((prev) => prev.filter((it) => it.key !== key));
   }
 
+  function editItem(key: string) {
+    const it = items.find((i) => i.key === key);
+    if (!it) return;
+    setDraft({
+      key: it.key,
+      category: it.category,
+      service: it.service,
+      qty: String(it.qty).replace(".", ","),
+      unit: it.unit.toFixed(2).replace(".", ","),
+    });
+    setItems((prev) => prev.filter((i) => i.key !== key));
+  }
+
   function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
     const payload: ReceiptItem[] = items.map((it) => ({
@@ -685,14 +698,27 @@ function SaleModal({
                     <span className="num">{it.qty}</span>
                     <span className="num">{fmtBRL(it.unit)}</span>
                     <span className="num pos-list__sub">{fmtBRL(it.total)}</span>
-                    <button
-                      type="button"
-                      className="pos-list__remove"
-                      onClick={() => removeItem(it.key)}
-                      aria-label="Remover"
-                    >
-                      ×
-                    </button>
+                    <span style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                      <button
+                        type="button"
+                        className="pos-list__remove"
+                        onClick={() => editItem(it.key)}
+                        aria-label="Editar"
+                        title="Editar item"
+                        style={{ fontSize: 14 }}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        className="pos-list__remove"
+                        onClick={() => removeItem(it.key)}
+                        aria-label="Remover"
+                        title="Remover item"
+                      >
+                        ×
+                      </button>
+                    </span>
                   </div>
                 ))
               )}
