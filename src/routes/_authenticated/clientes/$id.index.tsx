@@ -430,14 +430,17 @@ function SaleModal({
     if (priceValue !== null && (!Number.isFinite(priceValue) || priceValue < 0)) {
       setItemError("Preço inválido."); setSavingItem(false); return;
     }
+    const maxOrder = (inventory.data ?? []).reduce((m, i) => {
+      const v = Number(i.sort_order);
+      return Number.isFinite(v) && v < 2_000_000_000 ? Math.max(m, v) : m;
+    }, 0);
     const { error } = await supabase.from("inventory_items").insert({
       owner_id: uid,
       category: draft.category,
       group_name: newItem.group_name.trim(),
       name,
       price: priceValue,
-      sort_order:
-        (inventory.data ?? []).reduce((m, i) => Math.max(m, i.sort_order ?? 0), 0) + 1,
+      sort_order: maxOrder + 1,
     });
     if (error) { setItemError(error.message); setSavingItem(false); return; }
     await inventory.refetch();
