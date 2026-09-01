@@ -436,7 +436,8 @@ function SaleModal({
       group_name: newItem.group_name.trim(),
       name,
       price: priceValue,
-      sort_order: Date.now(),
+      sort_order:
+        (inventory.data ?? []).reduce((m, i) => Math.max(m, i.sort_order ?? 0), 0) + 1,
     });
     if (error) { setItemError(error.message); setSavingItem(false); return; }
     await inventory.refetch();
