@@ -698,14 +698,27 @@ function SaleModal({
                     <span className="num">{it.qty}</span>
                     <span className="num">{fmtBRL(it.unit)}</span>
                     <span className="num pos-list__sub">{fmtBRL(it.total)}</span>
-                    <button
-                      type="button"
-                      className="pos-list__remove"
-                      onClick={() => removeItem(it.key)}
-                      aria-label="Remover"
-                    >
-                      ×
-                    </button>
+                    <span style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                      <button
+                        type="button"
+                        className="pos-list__remove"
+                        onClick={() => editItem(it.key)}
+                        aria-label="Editar"
+                        title="Editar item"
+                        style={{ fontSize: 14 }}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        className="pos-list__remove"
+                        onClick={() => removeItem(it.key)}
+                        aria-label="Remover"
+                        title="Remover item"
+                      >
+                        ×
+                      </button>
+                    </span>
                   </div>
                 ))
               )}
