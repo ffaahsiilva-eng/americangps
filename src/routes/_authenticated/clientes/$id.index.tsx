@@ -477,6 +477,19 @@ function SaleModal({
     setItems((prev) => prev.filter((it) => it.key !== key));
   }
 
+  function editItem(key: string) {
+    const it = items.find((i) => i.key === key);
+    if (!it) return;
+    setDraft({
+      key: it.key,
+      category: it.category,
+      service: it.service,
+      qty: String(it.qty).replace(".", ","),
+      unit: it.unit.toFixed(2).replace(".", ","),
+    });
+    setItems((prev) => prev.filter((i) => i.key !== key));
+  }
+
   function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
     if (items.length === 0) return;
     const payload: ReceiptItem[] = items.map((it) => ({
