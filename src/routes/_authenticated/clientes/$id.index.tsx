@@ -295,6 +295,7 @@ type ItemDraft = {
   key: string;
   category: ServiceCategory;
   service: string;
+  vehicle: string;
   qty: string;
   unit: string;
 };
@@ -303,6 +304,7 @@ type AddedItem = {
   key: string;
   category: ServiceCategory;
   service: string;
+  vehicle: string;
   qty: number;
   unit: number;
   total: number;
