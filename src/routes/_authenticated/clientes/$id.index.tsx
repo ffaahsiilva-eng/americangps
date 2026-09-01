@@ -295,6 +295,7 @@ type ItemDraft = {
   key: string;
   category: ServiceCategory;
   service: string;
+  vehicle: string;
   qty: string;
   unit: string;
 };
@@ -303,6 +304,7 @@ type AddedItem = {
   key: string;
   category: ServiceCategory;
   service: string;
+  vehicle: string;
   qty: number;
   unit: number;
   total: number;
@@ -313,6 +315,7 @@ function emptyDraft(): ItemDraft {
     key: Math.random().toString(36).slice(2),
     category: "instalacao",
     service: "",
+    vehicle: "",
     qty: "1",
     unit: "",
   };
@@ -408,7 +411,7 @@ function SaleModal({
     const m = new Map<string, { unit: number; amount: number; qty: number; date: string }>();
     for (const s of lastSales.data ?? []) {
       const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
-      const name = (match?.[1] ?? s.description).trim();
+      const name = (match?.[1] ?? s.description).split(" — ")[0]!.trim();
       const qty = match?.[2] ? parseFloat(match[2].replace(",", ".")) : 1;
       if (!name || !qty) continue;
       if (m.has(name)) continue; // first (most recent) wins
@@ -468,6 +471,7 @@ function SaleModal({
         key: Math.random().toString(36).slice(2),
         category: draft.category,
         service: draft.service,
+        vehicle: draft.vehicle.trim(),
         qty: draftQty,
         unit: draftUnit,
         total: draftTotal,
@@ -487,6 +491,7 @@ function SaleModal({
       key: it.key,
       category: it.category,
       service: it.service,
+      vehicle: it.vehicle,
       qty: String(it.qty).replace(".", ","),
       unit: it.unit.toFixed(2).replace(".", ","),
     });
@@ -497,7 +502,7 @@ function SaleModal({
     if (items.length === 0) return;
     const payload: ReceiptItem[] = items.map((it) => ({
       category: it.category,
-      service: it.service,
+      service: it.vehicle ? `${it.service} — ${it.vehicle}` : it.service,
       qty: it.qty,
       unit: it.unit,
       total: it.total,
@@ -586,6 +591,14 @@ function SaleModal({
                     </optgroup>
                   ))}
                 </select>
+              </div>
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label>Placa / Modelo do veículo (opcional)</label>
+                <input
+                  value={draft.vehicle}
+                  onChange={(e) => setDraft({ ...draft, vehicle: e.target.value.toUpperCase() })}
+                  placeholder="Ex.: ABC-1D23 · FIAT STRADA"
+                />
               </div>
               <div className="pos-entry__row2">
                 <div className="field">
@@ -696,7 +709,7 @@ function SaleModal({
                     <span className="pos-list__num">{String(idx + 1).padStart(2, "0")}</span>
                     <span className="pos-list__desc">
                       <strong>{it.service}</strong>
-                      <em>{CATEGORY_LABEL[it.category]}</em>
+                      <em>{CATEGORY_LABEL[it.category]}{it.vehicle ? ` · ${it.vehicle}` : ""}</em>
                     </span>
                     <span className="num">{it.qty}</span>
                     <span className="num">{fmtBRL(it.unit)}</span>
@@ -784,6 +797,7 @@ function SaleModal({
                           <div className="receipt__item" key={it.key}>
                             <div className="receipt__item-name">
                               {String(n).padStart(2, "0")} {it.service.toUpperCase()}
+                              {it.vehicle ? ` — ${it.vehicle}` : ""}
                             </div>
                             <div className="receipt__item-row">
                               <span>
