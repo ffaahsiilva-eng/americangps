@@ -408,7 +408,7 @@ function SaleModal({
     const m = new Map<string, { unit: number; amount: number; qty: number; date: string }>();
     for (const s of lastSales.data ?? []) {
       const match = s.description.match(/^(.*?)(?:\s*\(x(\d+(?:[.,]\d+)?)\))?\s*$/);
-      const name = (match?.[1] ?? s.description).trim();
+      const name = (match?.[1] ?? s.description).split(" — ")[0]!.trim();
       const qty = match?.[2] ? parseFloat(match[2].replace(",", ".")) : 1;
       if (!name || !qty) continue;
       if (m.has(name)) continue; // first (most recent) wins
