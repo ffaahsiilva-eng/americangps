@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listSaleNotes, createSaleNote } from "@/lib/sales.functions";
 import { listClients, createClient } from "@/lib/clients.functions";
 import { getCompanySettings } from "@/lib/company.functions";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import americanGpsLogo from "@/assets/american-gps-logo.jpg";
 import {
   buildClosingPdfBlob,
   buildExcelBlob,
@@ -114,7 +114,7 @@ export function MonthlyBilling() {
     try {
       const blob = await buildClosingPdfBlob({
         company: company.data ?? {},
-        logoUrl: americanGpsLogo.url,
+        logoUrl: americanGpsLogo,
         monthLabel: range.label,
         client: c,
       });

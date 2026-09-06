@@ -6,7 +6,7 @@ import { AppShell, fmtBRL } from "@/lib/app-shell";
 import { getCashSummary, getCashSeries } from "@/lib/cash.functions";
 import { listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import americanGpsLogo from "@/assets/american-gps-logo.jpg";
 import { sanitizeWhatsappPhone, type ReceiptItem } from "@/lib/receipt-print";
 import type { ServiceCategory } from "@/lib/service-catalog";
 import { NoteCard } from "@/components/note-card";
@@ -16,14 +16,15 @@ import {
   type ReportClient,
 } from "@/lib/monthly-report";
 import { DashboardCharts } from "@/components/dashboard-charts";
+import { MonthlyBilling } from "@/components/monthly-billing";
 
 
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
     meta: [
-      { title: "Painel — Sistema de Gestão" },
-      { name: "description", content: "Painel de Controle do Sistema de Gestão." },
+      { title: "Painel — AMERICAN GPS" },
+      { name: "description", content: "Finanças AMERICAN GPS." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -128,7 +129,7 @@ function PainelPage() {
 
       const blob = await buildMonthlyReportPdfBlob({
         company: company.data ?? {},
-        logoUrl: americanGpsLogo.url,
+        logoUrl: americanGpsLogo,
         monthLabel,
         fromDate: from,
         toDate: to,
@@ -146,9 +147,9 @@ function PainelPage() {
 
   return (
     <AppShell>
-      <h1 className="app-title">Painel de Controle</h1>
+      <h1 className="app-title">FINANÇAS AMERICAN GPS</h1>
       <p className="app-subtitle">
-        Resumo automático das vendas e serviços. Filtre por período para acompanhar as entradas.
+        Resumo automático das movimentações financeiras, receitas, pagamentos e serviços.
       </p>
 
       <div className="row" style={{ marginBottom: 24 }}>
@@ -197,6 +198,8 @@ function PainelPage() {
       </div>
 
       <DashboardCharts data={series.data} />
+
+      <MonthlyBilling />
 
 
 
@@ -255,7 +258,7 @@ function PainelPage() {
               }));
               const ctx = {
                 company: company.data ?? {},
-                logoUrl: americanGpsLogo.url,
+                logoUrl: americanGpsLogo,
                 clientName,
                 clientPhone,
                 items: receiptItems,

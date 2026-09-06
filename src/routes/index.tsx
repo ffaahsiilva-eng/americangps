@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import americanGpsLogo from "@/assets/american-gps-logo.jpg";
 import heroVideo from "@/assets/hero-video.mp4.asset.json";
 import "./landing.css";
 
@@ -123,7 +123,7 @@ function LandingPage() {
             </div>
           </div>
           <figure className="hero__brand">
-            <img src={americanGpsLogo.url} alt="American GPS" />
+            <img src={americanGpsLogo} alt="American GPS Logo" className="auth-card__logo" />
           </figure>
         </div>
         <div className="hero__line" aria-hidden="true" />

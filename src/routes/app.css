@@ -31,7 +31,16 @@ html { -webkit-text-size-adjust: 100%; }
   color: rgba(255,255,255,.72);
   text-decoration: none;
 }
-.app-nav__logo { height: 40px; width: auto; display: block; flex-shrink: 0; }
+.app-nav__logo {
+  height: 40px;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  mix-blend-mode: lighten;
+}
 .app-nav__brand-label {
   display: none;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -368,7 +377,12 @@ html { -webkit-text-size-adjust: 100%; }
   border-bottom: 2px solid #111; padding-bottom: 16px; margin-bottom: 24px;
 }
 .invoice__brandBlock { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-.invoice__logo { width: 64px; height: 64px; object-fit: contain; }
+.invoice__logo {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 50%;
+}
 .invoice__brand {
   text-transform: uppercase; letter-spacing: .16em;
   font-size: .95rem; font-weight: 600;

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getMonthlyClosing } from "@/lib/cash.functions";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import americanGpsLogo from "@/assets/american-gps-logo.jpg";
 import "../../app.css";
 
 const searchSchema = z.object({
@@ -94,7 +94,7 @@ function ClosingPage() {
       <div className="invoice">
         <div className="invoice__header">
           <div className="invoice__brandBlock">
-            <img src={americanGpsLogo.url} alt="Logomarca" className="invoice__logo" />
+            <img src={americanGpsLogo} alt="Logomarca" className="invoice__logo" />
             <div>
               <div className="invoice__brand">{company?.name || "Sua Empresa"}</div>
               {company?.cnpj && <div className="invoice__meta">CNPJ: {company.cnpj}</div>}

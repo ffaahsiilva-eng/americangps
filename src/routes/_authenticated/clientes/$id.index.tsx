@@ -7,7 +7,7 @@ import { getClient, deleteClient } from "@/lib/clients.functions";
 import { createSaleNote, listSaleNotes } from "@/lib/sales.functions";
 import { getCompanySettings } from "@/lib/company.functions";
 import { SERVICE_CATALOG, CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
-import americanGpsLogo from "@/assets/american-gps-logo.png.asset.json";
+import americanGpsLogo from "@/assets/american-gps-logo.jpg";
 import {
   openPrintReceipt,
   openWhatsappReceipt,
@@ -223,7 +223,7 @@ function ClientDetail() {
               }));
               const ctx = {
                 company: company.data ?? {},
-                logoUrl: americanGpsLogo.url,
+                logoUrl: americanGpsLogo,
                 clientName: client.data?.name || "",
                 clientPhone: client.data?.phone || null,
                 items: receiptItems,
@@ -960,7 +960,7 @@ function ReceiptActions({
 }) {
   const ctx = {
     company,
-    logoUrl: americanGpsLogo.url,
+    logoUrl: americanGpsLogo,
     clientName,
     clientPhone,
     items: data.items,
