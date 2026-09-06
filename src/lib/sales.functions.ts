@@ -92,7 +92,7 @@ export const listSaleNotes = createServerFn({ method: "POST" })
         clientId: z.string().uuid().optional(),
         from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        limit: z.number().int().positive().max(200).optional(),
+        limit: z.number().int().positive().max(1000).optional(),
       })
       .parse(input ?? {}),
   )
@@ -100,7 +100,7 @@ export const listSaleNotes = createServerFn({ method: "POST" })
     let q = context.supabase
       .from("sale_notes")
       .select(
-        "id, client_id, note_number, occurred_at, payment_method, total, paid, created_at, sales:sales(id, kind, description, amount), client:clients(id, name, phone)",
+        "id, client_id, note_number, occurred_at, payment_method, total, paid, created_at, sales:sales(id, kind, description, amount), client:clients(id, name, phone, document)",
       )
       .order("occurred_at", { ascending: false })
       .order("created_at", { ascending: false });

@@ -6,6 +6,7 @@ const clientInput = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().email().max(200).optional().or(z.literal("").transform(() => undefined)),
   phone: z.string().trim().max(40).optional().or(z.literal("").transform(() => undefined)),
+  document: z.string().trim().max(40).optional().or(z.literal("").transform(() => undefined)),
   notes: z.string().trim().max(2000).optional().or(z.literal("").transform(() => undefined)),
 });
 
@@ -17,7 +18,7 @@ export const listClients = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     let q = context.supabase
       .from("clients")
-      .select("id, name, email, phone, notes, created_at")
+      .select("id, name, email, phone, document, notes, created_at")
       .order("name", { ascending: true });
     if (data.search) q = q.ilike("name", `%${data.search}%`);
     const { data: rows, error } = await q;
@@ -31,7 +32,7 @@ export const getClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("clients")
-      .select("id, name, email, phone, notes, created_at")
+      .select("id, name, email, phone, document, notes, created_at")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
