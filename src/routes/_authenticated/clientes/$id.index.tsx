@@ -91,7 +91,7 @@ function ClientDetail() {
   const createMut = useMutation({
     mutationFn: async (ctx: {
       items: ReceiptItem[];
-      method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+      method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | "fechamento" | null;
       dateStr: string;
     }) => {
       const paid = ctx.method !== null;
@@ -334,7 +334,7 @@ function SaleModal({
   onClose: () => void;
   onSubmit: (data: {
     items: ReceiptItem[];
-    method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null;
+    method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | "fechamento" | null;
     dateStr: string;
   }) => void;
   loading: boolean;
@@ -345,6 +345,8 @@ function SaleModal({
   const [items, setItems] = useState<AddedItem[]>([]);
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().slice(0, 10));
   const [showPayment, setShowPayment] = useState(false);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [closingMonth, setClosingMonth] = useState("");
   const [showNewItem, setShowNewItem] = useState(false);
   const [newItem, setNewItem] = useState({ group_name: "", name: "", price: "" });
   const [savingItem, setSavingItem] = useState(false);
@@ -498,7 +500,7 @@ function SaleModal({
     setItems((prev) => prev.filter((i) => i.key !== key));
   }
 
-  function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | null) {
+  function confirmPayment(method: "pix" | "credito" | "debito" | "dinheiro" | "transferencia" | "fechamento" | null, overrideDateStr?: string) {
     if (items.length === 0) return;
     const payload: ReceiptItem[] = items.map((it) => ({
       category: it.category,
@@ -507,7 +509,7 @@ function SaleModal({
       unit: it.unit,
       total: it.total,
     }));
-    onSubmit({ items: payload, method, dateStr: occurredAt });
+    onSubmit({ items: payload, method, dateStr: overrideDateStr || occurredAt });
   }
 
 
@@ -835,7 +837,7 @@ function SaleModal({
       </div>
 
       {showPayment && (
-        <div className="pay-overlay" onClick={() => !loading && setShowPayment(false)}>
+        <div className="pay-overlay" onClick={() => { if (!loading) { setShowPayment(false); setShowMonthPicker(false); } }}>
           <div className="pay-modal" onClick={(e) => e.stopPropagation()}>
             <div className="pay-modal__head">
               <div>
@@ -847,34 +849,82 @@ function SaleModal({
                 Cancelar
               </button>
             </div>
-            <div className="pay-grid">
-              {[
-                { key: "pix", label: "PIX", icon: "◈" },
-                { key: "credito", label: "Crédito", icon: "▭" },
-                { key: "debito", label: "Débito", icon: "▯" },
-                { key: "dinheiro", label: "Dinheiro", icon: "$" },
-                { key: "transferencia", label: "Transferência", icon: "⇄" },
-              ].map((m) => (
+            {!showMonthPicker ? (
+              <>
+                <div className="pay-grid">
+                  {[
+                    { key: "pix", label: "PIX", icon: "◈" },
+                    { key: "credito", label: "Crédito", icon: "▭" },
+                    { key: "debito", label: "Débito", icon: "▯" },
+                    { key: "dinheiro", label: "Dinheiro", icon: "$" },
+                    { key: "transferencia", label: "Transferência", icon: "⇄" },
+                  ].map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      className="pay-option"
+                      disabled={loading}
+                      onClick={() => confirmPayment(m.key as "pix" | "credito" | "debito" | "dinheiro" | "transferencia")}
+                    >
+                      <span className="pay-option__icon">{m.icon}</span>
+                      <span className="pay-option__label">{m.label}</span>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="pay-option"
+                    disabled={loading}
+                    onClick={() => setShowMonthPicker(true)}
+                  >
+                    <span className="pay-option__icon">📅</span>
+                    <span className="pay-option__label">FECHAMENTO</span>
+                  </button>
+                </div>
                 <button
-                  key={m.key}
                   type="button"
-                  className="pay-option"
+                  className="button--ghost pay-open-later"
                   disabled={loading}
-                  onClick={() => confirmPayment(m.key as "pix" | "credito" | "debito" | "dinheiro" | "transferencia")}
+                  onClick={() => confirmPayment(null)}
                 >
-                  <span className="pay-option__icon">{m.icon}</span>
-                  <span className="pay-option__label">{m.label}</span>
+                  Deixar em aberto
                 </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="button--ghost pay-open-later"
-              disabled={loading}
-              onClick={() => confirmPayment(null)}
-            >
-              Deixar em aberto
-            </button>
+              </>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="field">
+                  <label style={{color: '#999'}}>Selecione o mês (será salvo dia 01):</label>
+                  <input
+                    type="month"
+                    value={closingMonth}
+                    onChange={(e) => setClosingMonth(e.target.value)}
+                    style={{ background: "#222", border: "1px solid #333", color: "#fff", padding: 12, borderRadius: 8, fontSize: 16, outline: "none" }}
+                  />
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button
+                    type="button"
+                    className="button--primary"
+                    disabled={loading || !closingMonth}
+                    onClick={() => {
+                      if (closingMonth) {
+                        confirmPayment("fechamento", `${closingMonth}-01`);
+                      }
+                    }}
+                    style={{ flex: 1, padding: 16, background: "#dfac73", color: "#111", border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}
+                  >
+                    Confirmar Fechamento
+                  </button>
+                  <button
+                    type="button"
+                    className="button--ghost"
+                    onClick={() => setShowMonthPicker(false)}
+                    style={{ padding: 16, color: "#999", border: "1px solid #333", borderRadius: 8, cursor: "pointer" }}
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </div>
+            )}
             {loading && <div className="pay-loading">Salvando…</div>}
           </div>
         </div>
