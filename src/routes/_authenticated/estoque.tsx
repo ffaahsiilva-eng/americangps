@@ -17,8 +17,9 @@ export const Route = createFileRoute("/_authenticated/estoque")({
 
 const CATEGORY_CHIP: Record<ServiceCategory, string> = {
   instalacao: "chip--instalacao",
-  desinstalacao: "chip--desinstalacao",
   manutencao: "chip--manutencao",
+  desinstalacao: "chip--desinstalacao",
+  reinstalacao: "chip--reinstalacao",
 };
 
 type InventoryItem = {
@@ -237,8 +238,9 @@ function EstoquePage() {
             >
               <option value="all">Todas</option>
               <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
-              <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
               <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
+              <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
+              <option value="reinstalacao">{CATEGORY_LABEL.reinstalacao}</option>
             </select>
           </div>
         </div>
@@ -308,8 +310,9 @@ function EstoquePage() {
                   onChange={(e) => setEditing({ ...editing, category: e.target.value as ServiceCategory })}
                 >
                   <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
-                  <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
                   <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
+                  <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
+                  <option value="reinstalacao">{CATEGORY_LABEL.reinstalacao}</option>
                 </select>
               </div>
               <div className="field">

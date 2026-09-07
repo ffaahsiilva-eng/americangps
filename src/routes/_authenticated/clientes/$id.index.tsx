@@ -551,8 +551,9 @@ function SaleModal({
                   }
                 >
                   <option value="instalacao">{CATEGORY_LABEL.instalacao}</option>
-                  <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
                   <option value="manutencao">{CATEGORY_LABEL.manutencao}</option>
+                  <option value="desinstalacao">{CATEGORY_LABEL.desinstalacao}</option>
+                  <option value="reinstalacao">{CATEGORY_LABEL.reinstalacao}</option>
                 </select>
               </div>
               <div className="field pos-entry__service">

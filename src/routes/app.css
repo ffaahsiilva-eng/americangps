@@ -245,6 +245,7 @@ html { -webkit-text-size-adjust: 100%; }
 .chip--instalacao { background: rgba(120,180,255,.12); color: #a8c8ff; }
 .chip--desinstalacao { background: rgba(255,150,120,.12); color: #ffb090; }
 .chip--manutencao { background: rgba(180,255,180,.1); color: #a8e0a8; }
+.chip--reinstalacao { background: rgba(200,150,255,.12); color: #d6a8ff; }
 
 /* ============ Rows ============ */
 .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
