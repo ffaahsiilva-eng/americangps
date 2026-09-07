@@ -1,3 +1,7 @@
+
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateSaleNote, deleteSaleNote } from "@/lib/sales.functions";
 import { useState } from "react";
 import { CATEGORY_LABEL, type ServiceCategory } from "@/lib/service-catalog";
 import { fmtBRL, fmtDate } from "@/lib/app-shell";
@@ -56,6 +60,32 @@ function noteSummary(sales: SaleItem[]) {
 
 export function NoteCard({ note, method, noteStr, ctx, canWhats }: NoteCardProps) {
   const [open, setOpen] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editMethod, setEditMethod] = useState(note.payment_method || "");
+  const [editDate, setEditDate] = useState(note.occurred_at || "");
+
+  const qc = useQueryClient();
+  const updateFn = useServerFn(updateSaleNote);
+  const deleteFn = useServerFn(deleteSaleNote);
+
+  const updateMut = useMutation({
+    mutationFn: async (data: any) => await updateFn({ data }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sale-notes"] });
+      qc.invalidateQueries({ queryKey: ["recent-sales"] });
+      setShowEdit(false);
+    }
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async () => await deleteFn({ data: { id: note.id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sale-notes"] });
+      qc.invalidateQueries({ queryKey: ["recent-sales"] });
+      setShowEdit(false);
+    }
+  });
+
   return (
     <div className="note-card">
       <div className="note-card__head">
@@ -113,6 +143,64 @@ export function NoteCard({ note, method, noteStr, ctx, canWhats }: NoteCardProps
           💬 WhatsApp
         </button>
       </div>
+
+      {showEdit && (
+        <div className="modal-overlay">
+          <div className="modal" style={{ maxWidth: 400 }}>
+            <div className="modal__head" style={{ marginBottom: 16 }}>
+              <h2 className="modal__title">Editar Lançamento</h2>
+              <button className="modal__close" onClick={() => setShowEdit(false)}>×</button>
+            </div>
+            
+            <div className="field">
+              <label>Data</label>
+              <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label>Pagamento</label>
+              <select value={editMethod} onChange={e => setEditMethod(e.target.value)}>
+                <option value="">Em aberto</option>
+                <option value="pix">PIX</option>
+                <option value="credito">Crédito</option>
+                <option value="debito">Débito</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="transferencia">Transferência</option>
+                <option value="fechamento">Fechamento Mensal</option>
+              </select>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginTop: 24 }}>
+              <button 
+                className="button--primary" 
+                style={{ flex: 1 }}
+                disabled={updateMut.isPending}
+                onClick={() => updateMut.mutate({ 
+                  id: note.id, 
+                  occurred_at: editDate, 
+                  payment_method: editMethod || null,
+                  paid: !!editMethod
+                })}
+              >
+                {updateMut.isPending ? "Salvando..." : "Salvar"}
+              </button>
+              
+              <button 
+                className="button--ghost" 
+                style={{ color: "#ff5e5e" }}
+                disabled={deleteMut.isPending}
+                onClick={() => {
+                  if (confirm("Tem certeza que deseja excluir permanentemente este lançamento?")) {
+                    deleteMut.mutate();
+                  }
+                }}
+              >
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -113,3 +113,42 @@ export const listSaleNotes = createServerFn({ method: "POST" })
     return rows ?? [];
   });
 
+
+
+export const updateSaleNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => 
+    z.object({
+      id: z.string().uuid(),
+      occurred_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      payment_method: z.enum(["pix", "credito", "debito", "dinheiro", "transferencia", "fechamento"]).nullable().optional(),
+      paid: z.boolean().optional(),
+    }).parse(input)
+  )
+  .handler(async ({ data, context }) => {
+    const updates: any = {};
+    if (data.occurred_at !== undefined) updates.occurred_at = data.occurred_at;
+    if (data.payment_method !== undefined) updates.payment_method = data.payment_method;
+    if (data.paid !== undefined) updates.paid = data.paid;
+    
+    if (Object.keys(updates).length > 0) {
+      const { error } = await context.supabase
+        .from("sale_notes")
+        .update(updates)
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteSaleNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("sale_notes")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
